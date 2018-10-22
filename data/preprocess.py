@@ -38,7 +38,7 @@ def bbc(vidframes, augmentation=True):
         ])(np.expand_dims(data[:, :, 0], axis=2))
 
         temporalvolume[index, 0, :, :] = result
-        if data.shape[3] == 2:
+        if data.shape[2] == 2:
             result = transforms.Compose([
                 transforms.ToPILImage(),
                 croptransform,
