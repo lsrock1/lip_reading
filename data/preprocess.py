@@ -35,7 +35,7 @@ def bbc(vidframes, augmentation=True):
             transforms.ToPILImage(),
             croptransform,
             transforms.ToTensor(),
-        ])(data[:, :, :, 0])
+        ])(data[:, :, 0])
 
         temporalvolume[index, 0, :, :] = result
         if data.shape[3] == 2:
@@ -43,7 +43,7 @@ def bbc(vidframes, augmentation=True):
                 transforms.ToPILImage(),
                 croptransform,
                 transforms.ToTensor(),
-            ])(data[:, :, :, 1])
+            ])(data[:, :, 1])
 
             temporalvolume[index, 1, :, :] = result
     return temporalvolume.transpose(0, 1)
