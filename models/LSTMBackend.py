@@ -19,6 +19,8 @@ class NLLSequenceLoss(nn.Module):
         input = input.transpose(0, 1).contiguous()
 
         for i in range(0, 29):
+            print(input[i])
+            print(target)
             loss += self.criterion(input[i], target)
 
         return loss/29
