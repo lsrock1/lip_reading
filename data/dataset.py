@@ -38,7 +38,7 @@ class LandVideo:
         data = self.video[key]
         if self.isLandmark:
             landmark_dir = self.video.getFile(key).split('.mpg')[0] + '/origin.npy'
-            channel = np.zeros((1, data.shape[1], data.shape[2], data.shape[3]))
+            channel = np.zeros((1, data.shape[1], data.shape[2], data.shape[3]), dtype=np.int8)
             for index, frame in enumerate(np.load(landmark_dir)):
                 for dot in frame:
                     channel[0, index, int(dot[1]/2), int(dot[0]/2)]
