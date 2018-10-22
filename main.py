@@ -65,7 +65,7 @@ def main():
 
     train_dataset = LipreadingDataset(options["training"]["data_path"], "train", True, options['model']['landmark'])
     train_dataloader = DataLoader(
-                        dataset,
+                        train_dataset,
                         batch_size=options["input"]["batch_size"],
                         shuffle=options["input"]["shuffle"],
                         num_workers=options["input"]["num_worker"],
@@ -74,7 +74,7 @@ def main():
     val_dataset = LipreadingDataset(options['validation']['data_path'],
                                     "val", False, options['model']['landmark'])
     val_dataloader = DataLoader(
-                                self.dataset,
+                                val_dataset,
                                 batch_size=options["input"]["batch_size"],
                                 shuffle=options["input"]["shuffle"],
                                 num_workers=options["input"]["num_worker"],
