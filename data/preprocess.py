@@ -37,6 +37,7 @@ def bbc(vidframes, augmentation=True):
             croptransform,
             transforms.ToTensor(),
         ])(data)
+        print(result.size())
         if result.size(0) == 3:
             result = result[1:, :, :]
         temporalvolume[index] = result
