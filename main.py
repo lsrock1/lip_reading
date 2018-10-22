@@ -106,7 +106,7 @@ def main():
                     (epoch + 1, i_batch + 1, running_loss / stats_frequency))
                     running_loss = 0.0
                     currentTime = datetime.now()
-                    output_iteration(i_batch * batch_size, currentTime - startTime, len(dataset))
+                    output_iteration(i_batch * batch_size, currentTime - startTime, len(train_dataset))
 
         print("Epoch completed, saving state...")
         torch.save(model.state_dict(), os.path.join(options["general"]["save_path"], 'model{}.pth'.format(epoch)))
