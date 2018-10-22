@@ -17,7 +17,7 @@ def bbc(vidframes, augmentation=True):
         FloatTensor: The video as a temporal volume, represented as a 5D tensor
             (batch, channel, time, width, height)"""
     temporalvolume = torch.zeros(vidframes.shape[1], vidframes.shape[0], 112, 112)
-    vidframes = np.transpose(vidframes, (1, 2, 3, 0))
+    vidframes = torch.from_numpy(np.transpose(vidframes, (1, 2, 3, 0)))
     # frame, height, width, channel
     croptransform = transforms.CenterCrop((112, 112))
     
@@ -32,9 +32,7 @@ def bbc(vidframes, augmentation=True):
 
     for index, data in enumerate(vidframes):
         result = transforms.Compose([
-            transforms.ToPILImage(),
             croptransform,
-            transforms.ToTensor(),
         ])(data)
         temporalvolume[index] = result
     return temporalvolume.transpose(0, 1)
