@@ -11,7 +11,7 @@ class ConvFrontend(nn.Module):
         self.norm = nn.BatchNorm3d(64)
         self.pool = nn.MaxPool3d((1,3,3), stride=(1,2,2), padding=(0,1,1))
         if options['model']['coord']:
-            self.coord = AddCoords(False)
+            self.coord = AddCoords()
         else:
             self.coord = False
 
