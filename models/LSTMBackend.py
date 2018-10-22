@@ -30,7 +30,7 @@ def _validate(modelOutput, labels):
 
     for i in range(0, labels.size(0)):
 
-        if maxindices[i] == labels.squeeze(1)[i]:
+        if maxindices[i] == labels[i]:
             count += 1
 
     return count
