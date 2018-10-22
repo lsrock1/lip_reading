@@ -57,7 +57,6 @@ class Video(list):
         return super().__getitem__(key)
 
     def videoRead(self, item):
-        print(item)
         tmp = []
         cap = cv2.VideoCapture(item)
         while(True):
