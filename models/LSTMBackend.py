@@ -28,7 +28,7 @@ def _validate(modelOutput, labels):
     maxvalues, maxindices = torch.max(averageEnergies, 1)
     count = 0
 
-    for i in range(0, labels.squeeze(1).size(0)):
+    for i in range(0, labels.size(0)):
 
         if maxindices[i] == labels.squeeze(1)[i]:
             count += 1
