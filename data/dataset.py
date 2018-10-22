@@ -9,7 +9,7 @@ import numpy as np
 class LipreadingDataset(Dataset):
     """BBC Lip Reading dataset."""
     def __init__(self, directory, data_type, aug=True, landmark=False):
-        self.file_list = sorted(glob(os.path.join(directory, '*', data_type, '*.mpg')))
+        self.file_list = sorted(glob(os.path.join(directory, '*', data_type, '*.mpg')))[:100]
         print('{} set: {}'.format(data_type, len(self.file_list)))
         self.label_list = getLabelFromFile(self.file_list)
         self.file_list = LandVideo(Video(self.file_list), landmark)
