@@ -33,7 +33,7 @@ def bbc(vidframes, augmentation=True):
 
     for index, data in enumerate(vidframes):
         result = transforms.Compose([
-            transforms.ToPILImage(mode='RGB' if vidframes.shape[3] == 3),
+            transforms.ToPILImage(mode='RGB' if vidframes.shape[3] == 3 else None),
             croptransform,
             transforms.ToTensor(),
         ])(data)
