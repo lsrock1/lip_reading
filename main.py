@@ -136,7 +136,7 @@ def main():
                     print(count)
 
                 accuracy = count / len(val_dataset)
-                with open(ps.path.join(options['validation']['data_path'], options['name']+'.txt'), "a") as outputfile:
+                with open(os.path.join(options['validation']['data_path'], options['name']+'.txt'), "a") as outputfile:
                     outputfile.write("\ncorrect count: {}, total count: {} accuracy: {}" .format(count, len(val_dataset), accuracy ))
 
 if __name__ == '__main__':
