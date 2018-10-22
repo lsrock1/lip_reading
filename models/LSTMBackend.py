@@ -10,7 +10,7 @@ class NLLSequenceLoss(nn.Module):
     """
     def __init__(self):
         super(NLLSequenceLoss, self).__init__()
-        self.criterion = nn.NLLLoss()
+        self.criterion = nn.CrossEntropyLoss()
 
     def forward(self, input, target):
         loss = 0.0
@@ -19,9 +19,6 @@ class NLLSequenceLoss(nn.Module):
         input = input.transpose(0, 1).contiguous()
 
         for i in range(0, 29):
-            print(input[i])
-            print(torch.sum(input[i]))
-            print(target)
             loss += self.criterion(input[i], target)
 
         return loss/29
@@ -49,13 +46,11 @@ class LSTMBackend(nn.Module):
                                 bidirectional=True)
         self.fc = nn.Linear(options["model"]["hidden_dim"] * 2,
                                 options["model"]["num_class"])
-        self.softmax = nn.LogSoftmax(dim=2)
         self.loss = NLLSequenceLoss()
         self.validator = _validate
 
     def forward(self, input):
-        lstmOutput, _ = self.Module1(input)
-        output = self.fc(lstmOutput)
-        output = self.softmax(output)
+        input, _ = self.Module1(input)
+        input = self.fc(input)
 
-        return output
+        return input
