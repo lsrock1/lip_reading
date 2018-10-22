@@ -26,6 +26,7 @@ class ConvFrontend(nn.Module):
 class AddCoords(nn.Module):
     def __init__(self):
         super().__init__()
+        self.is_time_coord = False
 
     def forward(self, x):
         bs, _, t_dim, y_dim, x_dim = x.size()
