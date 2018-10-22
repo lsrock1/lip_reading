@@ -20,8 +20,6 @@ def bbc(vidframes, augmentation=True):
     vidframes = np.transpose(vidframes, (1, 2, 3, 0))
     # frame, height, width, channel
     croptransform = transforms.CenterCrop((112, 112))
-    for i in vidframes[0].reshape(120, 120):
-        print(i)
     
     if(augmentation):
         crop = StatefulRandomCrop((120, 120), (112, 112))
