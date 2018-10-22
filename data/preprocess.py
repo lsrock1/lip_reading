@@ -18,7 +18,7 @@ def bbc(vidframes, augmentation=True):
             (batch, channel, time, width, height)"""
     temporalvolume = torch.zeros(vidframes.shape[1], vidframes.shape[0], 112, 112)
     vidframes = np.transpose(vidframes, (1, 2, 3, 0))
-    print(vidframes.dtype)
+    vidframes = np.concatenate([vidframes, np.zeros([vidframes.shape[0], 120, 120, 1])], axis=3)
     # frame, height, width, channel
     croptransform = transforms.CenterCrop((112, 112))
     
@@ -33,10 +33,12 @@ def bbc(vidframes, augmentation=True):
 
     for index, data in enumerate(vidframes):
         result = transforms.Compose([
-            transforms.ToPILImage(),
+            transforms.ToPILImage(mode='RGB' if vidframes.shape[3] == 3),
             croptransform,
             transforms.ToTensor(),
         ])(data)
-        temporalvolume[index] = result[:2,:,:]
-        print(result[2,:,:])
+        if result.size(0) == 3:
+            result = result[:2, :, :]
+        temporalvolume[index] = result
+        print(result)
     return temporalvolume.transpose(0, 1)
