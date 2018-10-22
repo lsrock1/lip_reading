@@ -16,7 +16,7 @@ class StatefulRandomCrop(object):
             tuple: params (i, j, h, w) to be passed to ``crop`` for random crop.
         """
         w, h = insize
-        th, tw = outsize
+        tw, th = outsize
         if w == tw and h == th:
             return 0, 0, h, w
 

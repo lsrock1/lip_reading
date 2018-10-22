@@ -9,9 +9,9 @@ import os
 class Validator():
     def __init__(self, options):
         self.dataset = LipreadingDataset(options['validation']['data_path'],
-                                    "val", False)
+                                    "val", False, options['model']['landmark'])
         self.dataloader = DataLoader(
-                                    self.validationdataset,
+                                    self.dataset,
                                     batch_size=options["input"]["batch_size"],
                                     shuffle=options["input"]["shuffle"],
                                     num_workers=options["input"]["num_worker"],
@@ -25,13 +25,13 @@ class Validator():
         validator_function = model.validator_function()
 
         for i_batch, sample_batched in enumerate(self.dataloader):
-            input = sample_batched['temporalvolume']
-            labels = sample_batched['label']
+            input = sample_batched[0]
+            labels = sample_batched[1]
 
             if(self.usecudnn):
                 input = input.cuda()
                 labels = labels.cuda()
-
+            
             outputs = model(input)
 
             count += validator_function(outputs, labels)

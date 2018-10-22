@@ -2,26 +2,31 @@ from torch.utils.data import Dataset
 from .preprocess import *
 import os
 from glob import glob
+import cv2
+import numpy as np
 
 
 class LipreadingDataset(Dataset):
     """BBC Lip Reading dataset."""
-    def __init__(self, directory, set, augment=True):
-        self.label_list, self.file_list = self.build_file_list(directory, set)
-        self.augment = augment
+    def __init__(self, directory, data_type, aug=True, landmark=False):
+        self.file_list = sorted(glob(os.path.join(directory, '*', data_type, '*.mpg')))
+        print('{} set: {}'.format(data_type, len(self.file_list)))
+        self.label_list = getLabelFromFile(self.file_list)
+        self.file_list = LandVideo(Video(self.file_list), landmark)
+        self.labelToInt = labelToDict(self.label_list)
+        self.aug = aug
+
 
     def __len__(self):
         return len(self.file_list)
 
     def __getitem__(self, idx):
         #load video into a tensor
-        label, filename = self.file_list[idx]
-        vidframes = load_video(filename)
-        temporalvolume = bbc(vidframes, self.augment)
+        data = self.file_list[idx]
+        label = self.label_list[idx]
+        temporalvolume = bbc(data, self.aug)
 
-        sample = {'temporalvolume': temporalvolume, 'label': torch.LongTensor([label])}
-
-        return sample
+        return temporalvolume, self.labelToInt[label]
 
 
 class LandVideo:
@@ -32,17 +37,11 @@ class LandVideo:
     def __getitem__(self, key):
         data = self.video[key]
         if self.isLandmark:
-            splitName = self.video.getFile(key).split('/')
-            filename = splitName[-1][:-4]
-            landmarks = sorted(glob(os.path.join('/'.join(splitName[:-2]), 'landmark', 'origin', '*', filename, '*')), key=natural_keys)
-            channel = np.zeros([1, data.shape[1], data.shape[2], data.shape[3]])
-            for i in range(data.shape[1]):
-                tmp = np.load(landmarks[i])
-                for dot in tmp:
-                    try:
-                        channel[0, i, dot[1], dot[0]] = 1
-                    except:
-                        pass
+            landmark_dir = self.video.getFile(key).split('.mpg')[0] + '/origin.npy'
+            channel = np.zeros(1, data.shape[1], data.shape[2], data.shape[3])
+            for index, frame in enumerate(np.load(landmark_dir)):
+                for dot in frame:
+                    channel[0, index, int(dot[1]/2), int(dot[0]/2)]
             data = np.concatenate([data, channel], axis=0)
         return data
 
@@ -73,29 +72,17 @@ class Video(list):
         cap.release()
         return np.concatenate(tmp, axis=1)
 
-
-class Script(list):
-    def __getitem__(self, key):
-        return self.scriptRead(super().__getitem__(key))
-
-    def scriptRead(self, item):
-        tmp = ''
-        result = []
-        with open(item, 'r') as f:
-            for line in f.readlines():
-                line = line.strip().upper()
-                if line != '':
-                    tmp += line.split()[-1]
-                tmp += ' '
-        tmp = tmp.rstrip().replace('SIL', '').strip()
-        for i in tmp:
-            result.append(wtoi[i])
-
-        return np.array(result, dtype='int')
-
+def getLabelFromFile(file_list):
+    return [i.split('/')[-1].split('_')[0] for i in file_list]
 
 def atoi(text):
     return int(text) if text.isdigit() else text
 
 def natural_keys(text):
     return [atoi(c) for c in re.split('(\d+)', text)]
+
+def labelToDict(label_list):
+    return dict(zip(
+        sorted(list(set(label_list))),
+        list(range(len(label_list)))
+    ))

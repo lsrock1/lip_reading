@@ -14,7 +14,6 @@ def timedelta_string(timedelta):
     return "{} hrs, {} mins, {} secs".format(hours, minutes, seconds)
 
 def output_iteration(i, time, totalitems):
-    os.system('clear')
 
     avgBatchTime = time / (i+1)
     estTime = avgBatchTime * (totalitems - i)
@@ -23,18 +22,17 @@ def output_iteration(i, time, totalitems):
 
 class Trainer():
     def __init__(self, model, optimizer, options):
-        self.dataset = LipreadingDataset(options["training"]["data_path"], "train")
+        self.dataset = LipreadingDataset(options["training"]["data_path"], "train", True, options['model']['landmark'])
         self.dataloader = DataLoader(
                             self.dataset,
-                            batch_size=options["input"]["batchsize"],
+                            batch_size=options["input"]["batch_size"],
                             shuffle=options["input"]["shuffle"],
-                            num_workers=options["input"]["numworkers"],
+                            num_workers=options["input"]["num_worker"],
                             drop_last=True
                         )
         self.usecudnn = options["general"]["usecudnn"]
-        self.batch_size = options["input"]["batchsize"]
-        self.stats_frequency = options["training"]["statsfrequency"]
-        self.save_path = options['general']['save_path']
+        self.batch_size = options["input"]["batch_size"]
+        self.stats_frequency = options["training"]["stats_frequency"]
 
         self.optimizer = optimizer
         self.scheduler = optim.lr_scheduler.MultiStepLR(
@@ -47,29 +45,24 @@ class Trainer():
     def epoch(self, model, epoch):
         #set up the loss function.
         self.scheduler.step()
-
+        running_loss = 0.0
         startTime = datetime.now()
         print("Starting training...")
         for i_batch, sample_batched in enumerate(self.dataloader):
             self.optimizer.zero_grad()
-            input = sample_batched['temporalvolume']
-            labels = sample_batched['label']
-
+            input = sample_batched[0]
+            labels = sample_batched[1]
             if(self.usecudnn):
                 input = input.cuda()
                 labels = labels.cuda()
-
             outputs = model(input)
-            loss = self.criterion(outputs, labels.squeeze(1))
-
+            loss = self.criterion(outputs, labels)
+            running_loss += loss.item()
             loss.backward()
-            optimizer.step()
-            sampleNumber = i_batch * self.batch_size
-
-            if(sampleNumber % self.stats_frequency == 0):
+            self.optimizer.step()
+            if(i_batch % self.stats_frequency == 0):
+                print('[%d, %5d] loss: %.3f' %
+                  (epoch + 1, i_batch + 1, running_loss / self.stats_frequency))
+                running_loss = 0.0
                 currentTime = datetime.now()
-                output_iteration(sampleNumber, currentTime - startTime, len(self.dataset))
-
-        print("Epoch completed, saving state...")
-        torch.save(model.state_dict(), os.path.join(self.save_path, 'model{}.pth'.format(epoch)))
-        torch.save(self.optimizer.state_dict(), os.path.join(self.save_path, 'optimizer{}.pth'.format(epoch)))
+                output_iteration(i_batch * self.batch_size, currentTime - startTime, len(self.dataset))

@@ -14,12 +14,14 @@ class NLLSequenceLoss(nn.Module):
 
     def forward(self, input, target):
         loss = 0.0
-        transposed = input.transpose(0, 1).contiguous()
+        # bs, length, 500
+        # bs
+        input = input.transpose(0, 1).contiguous()
 
         for i in range(0, 29):
-            loss += self.criterion(transposed[i], target)
+            loss += self.criterion(input[i], target)
 
-        return loss
+        return loss/29
 
 def _validate(modelOutput, labels):
     averageEnergies = torch.sum(modelOutput.data, 1)

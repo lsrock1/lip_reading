@@ -14,8 +14,8 @@ model:
   coord: false
   landmark: false
   type: LSTM
-  input_dim: 512
-  hidden_dim: 512
+  input_dim: 256
+  hidden_dim: 256
   num_class: 500
   num_lstm: 2
 
@@ -23,18 +23,19 @@ training:
   train: true
   max_epoch: 15
   start_epoch: 0
-  stats_frequency: 1000
-  data_path: /udisk/pszts-ssd/AV-ASR-data/BBC_Oxford/lipread_mp4
-  learning_rate: 0.003
-  momentum: 0.9
-  weight_decay: 0.0001
+  stats_frequency: 10
+  data_path: /home/deepuser/lrw_result
+  learning_rate: 0.001
+  momentum: 0.
+  weight_decay: 0.
   schedule:
   - 5
   - 10
   lr_decay: 0.1
+  aug: true
 
 validation:
   validate: true
-  data_path: /udisk/pszts-ssd/AV-ASR-data/BBC_Oxford/lipread_mp4
+  data_path: /home/deepuser/lrw_result
   save_accuracy: true
   accuracy_path: ./
