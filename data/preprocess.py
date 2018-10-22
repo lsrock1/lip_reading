@@ -41,5 +41,5 @@ def bbc(vidframes, augmentation=True):
         if result.size(0) == 3:
             result = result[:2, :, :]
         temporalvolume[index] = result
-        print(result[0])
+        print(result[1])
     return temporalvolume.transpose(0, 1)
