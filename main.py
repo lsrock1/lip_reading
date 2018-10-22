@@ -58,9 +58,11 @@ def main():
     if(options["general"]['model_load']):
         path = sorted(glob(os.path.join(options["general"]["save_path"], 'models', '*.pth')), key=lambda name : int(name.replace('.pth').replace('model')))
         if path:
+            print('load model..')
             model.load_state_dict(torch.load(path[-1]))
         path = sorted(glob(os.path.join(options["general"]["save_path"], 'optimizers', '*.pth')), key=lambda name : int(name.replace('.pth').replace('model')))
         if path:
+            print('load optimizer..')
             optimizer.load_state_dict(torch.load(path[-1]))
 
     train_dataset = LipreadingDataset(options["training"]["data_path"], "train", True, options['model']['landmark'])
