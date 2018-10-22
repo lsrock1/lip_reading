@@ -61,7 +61,7 @@ class Trainer():
             loss.backward()
             self.optimizer.step()
             if(i_batch % self.stats_frequency == 0):
-                print('[%d, %5d] loss: %.3f' %
+                print('[%d, %5d] loss: %.8f' %
                   (epoch + 1, i_batch + 1, running_loss / self.stats_frequency))
                 running_loss = 0.0
                 currentTime = datetime.now()

@@ -28,9 +28,8 @@ class Validator():
             input = sample_batched[0]
             labels = sample_batched[1]
 
-            if(self.usecudnn):
-                input = input.cuda()
-                labels = labels.cuda()
+            input = input.cuda()
+            labels = labels.cuda()
             
             outputs = model(input)
 
