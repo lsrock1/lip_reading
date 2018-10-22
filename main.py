@@ -40,6 +40,7 @@ def main():
 
     #Create the model.
     model = LipRead(options).cuda()
+    print('lr : ', options['training']['learning_rate'])
     optimizer = optim.SGD(
                 model.parameters(),
                 lr = options['training']['learning_rate'],
@@ -133,9 +134,8 @@ def main():
 
                     count += validator_function(outputs, labels)
 
-                    print(count)
-
                 accuracy = count / len(val_dataset)
+                print('correct count: {}, total count: {}, accu: {}'.format(count, len(val_dataset, accuracy)))
                 with open(os.path.join('./', options['name']+'.txt'), "a") as outputfile:
                     outputfile.write("\ncorrect count: {}, total count: {} accuracy: {}" .format(count, len(val_dataset), accuracy ))
 

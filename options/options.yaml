@@ -26,7 +26,7 @@ training:
   start_epoch: 0
   stats_frequency: 100
   data_path: /home/deepuser/lrw_result
-  learning_rate: 10
+  learning_rate: 1
   momentum: 0.
   weight_decay: 0.
   schedule:
