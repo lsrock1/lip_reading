@@ -135,7 +135,7 @@ def main():
                     count += validator_function(outputs, labels)
 
                 accuracy = count / len(val_dataset)
-                print('correct count: {}, total count: {}, accu: {}'.format(count, len(val_dataset, accuracy)))
+                print('correct count: {}, total count: {}, accu: {}'.format(count, len(val_dataset), accuracy)))
                 with open(os.path.join('./', options['name']+'.txt'), "a") as outputfile:
                     outputfile.write("\ncorrect count: {}, total count: {} accuracy: {}" .format(count, len(val_dataset), accuracy ))
 
