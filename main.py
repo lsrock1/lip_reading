@@ -41,6 +41,8 @@ def main():
     #Create the model.
     model = LipRead(options).cuda()
     print('lr : ', options['training']['learning_rate'])
+    print('momentum : ', options['training']['momentum'])
+    print('weight_decay : ', options['training']['weight_decay'])
     optimizer = optim.SGD(
                 model.parameters(),
                 lr = options['training']['learning_rate'],
@@ -56,6 +58,12 @@ def main():
 
     criterion = model.loss()
 
+    if not os.path.isdir(os.path.join(options["general"]["save_path"], options['name'])):
+        os.mkdir(os.path.join(options["general"]["save_path"], options['name']))
+    if not os.path.isdir(os.path.join(options["general"]["save_path"], options['name'], 'optimizers')):
+        os.mkdir(os.path.join(options["general"]["save_path"], options['name'], 'optimizers'))
+    if not os.path.isdir(os.path.join(options["general"]["save_path"], options['name'], 'models')):
+        os.mkdir(os.path.join(options["general"]["save_path"], options['name'], 'models'))
     if(options["general"]['model_load']):
         path = sorted(glob(os.path.join(options["general"]["save_path"], options['name'], 'models', '*.pth')), key=lambda name : int(name.replace('.pth').replace('model')))
         if path:
