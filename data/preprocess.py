@@ -20,7 +20,9 @@ def bbc(vidframes, augmentation=True):
     vidframes = np.transpose(vidframes, (1, 2, 3, 0))
     # frame, height, width, channel
     croptransform = transforms.CenterCrop((112, 112))
-
+    for i in vidframes[0].reshape(120, 120):
+        print(i)
+    
     if(augmentation):
         crop = StatefulRandomCrop((120, 120), (112, 112))
         flip = StatefulRandomHorizontalFlip(0.5)
@@ -33,7 +35,6 @@ def bbc(vidframes, augmentation=True):
     for index, data in enumerate(vidframes):
         result = transforms.Compose([
             transforms.ToPILImage(),
-            transforms.CenterCrop((122, 122)),
             croptransform,
             transforms.ToTensor(),
         ])(data)

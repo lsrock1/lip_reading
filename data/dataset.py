@@ -65,7 +65,6 @@ class Video(list):
                 # Our operations on the frame come here
                 gray = cv2.resize(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY), (120, 120)).reshape(-1, 1, 120, 120)
                 tmp.append(gray)
-                print(gray)
                 # Display the resulting frame
                 #imshow(gray, cmap='gray')
             else:
