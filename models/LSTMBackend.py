@@ -20,6 +20,7 @@ class NLLSequenceLoss(nn.Module):
 
         for i in range(0, 29):
             print(input[i])
+            print(torch.sum(input[i]))
             print(target)
             loss += self.criterion(input[i], target)
 

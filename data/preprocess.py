@@ -38,4 +38,5 @@ def bbc(vidframes, augmentation=True):
             transforms.ToTensor(),
         ])(data)
         temporalvolume[index] = result
+        print(temporalvolume[index])
     return temporalvolume.transpose(0, 1)
