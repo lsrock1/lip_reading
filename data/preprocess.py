@@ -35,6 +35,6 @@ def bbc(vidframes, augmentation=True):
             transforms.ToPILImage(),
             croptransform,
             transforms.ToTensor(),
-        ])(data)
+        ])(np.uint8(data))
         temporalvolume[index] = result
     return temporalvolume.transpose(0, 1)
