@@ -3,7 +3,7 @@ general:
   usecudnn: true
   usecudnnbenchmark: true
   model_load: true
-  model_save: false
+  model_save: true
   save_path: ./save
 
 input: 
