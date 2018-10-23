@@ -24,10 +24,10 @@ class LipRead(nn.Module):
             if re.search("Conv[123]d", classname):
                 nn.init.xavier_uniform_(m.weight)
             elif re.search("BatchNorm[123]d", classname):
-                nn.init.xavier_uniform_(m.weight)
+                m.weight.data.fill_(1.0)
                 m.bias.data.fill_(0)
             elif re.search("Linear", classname):
-                nn.init.xavier_uniform_(m.weight)
+                m.bias.data.fill_(0)
 
         #Apply weight initialization to every module in the model.
         self.apply(weights_init)
