@@ -25,13 +25,12 @@ class NLLSequenceLoss(nn.Module):
 
         return loss
 
-def _validate(modelOutput, labels):
-    averageEnergies = torch.sum(modelOutput.data, 1)
-    maxvalues, maxindices = torch.max(averageEnergies, 1)
+def _validate(x, labels):
+    x = torch.sum(F.log_softmax(x, dim=2), dim=1)
+    _, maxindices = torch.max(x, dim=1)
     count = 0
 
     for i in range(0, labels.size(0)):
-
         if maxindices[i] == labels[i]:
             count += 1
 

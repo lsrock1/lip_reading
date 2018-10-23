@@ -73,7 +73,7 @@ def main():
             print('load optimizer..')
             optimizer.load_state_dict(torch.load(path[-1]))
 
-    train_dataset = LipreadingDataset(options["training"]["data_path"], "train", True, options['model']['landmark'])
+    train_dataset = LipreadingDataset(options["training"]["data_path"], "train", options['input']['aug'], options['model']['landmark'])
     train_dataloader = DataLoader(
                         train_dataset,
                         batch_size=options["input"]["batch_size"],
@@ -99,6 +99,7 @@ def main():
         if(options["training"]["train"]):
             scheduler.step()
             running_loss = 0.0
+            count = 0
             startTime = datetime.now()
             print("Starting training...")
             for i_batch, sample_batched in enumerate(train_dataloader):
@@ -106,7 +107,7 @@ def main():
                 input = sample_batched[0].cuda()
                 labels = sample_batched[1].cuda()
                 outputs = model(input)
-
+                count += model.validator_function()(outputs, labels)
                 loss = criterion(outputs, labels)
                 running_loss += loss.item()
                 loss.backward()
@@ -117,9 +118,10 @@ def main():
                 #         pass
                 optimizer.step()
                 if(i_batch % stats_frequency == 0 and i_batch != 0):
-                    print('[%d, %5d] loss: %.8f' %
-                    (epoch + 1, i_batch + 1, running_loss / stats_frequency))
+                    print('[%d, %5d] loss: %.8f, acc: %f' %
+                    (epoch + 1, i_batch + 1, running_loss / stats_frequency, count/stats_frequency*batch_size))
                     running_loss = 0.0
+                    count = 0
                     currentTime = datetime.now()
                     output_iteration(i_batch * batch_size, currentTime - startTime, len(train_dataset))
 
