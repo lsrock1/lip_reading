@@ -12,10 +12,11 @@ class LipreadingDataset(Dataset):
         self.file_list = sorted(glob(os.path.join(directory, '*', data_type, '*.mpg')))
         print('{} set: {}'.format(data_type, len(self.file_list)))
         self.label_list = getLabelFromFile(self.file_list)
+        print(self.file_list[9999:10010])
         self.file_list = LandVideo(Video(self.file_list), landmark)
         self.labelToInt = labelToDict(self.label_list)
         self.aug = aug
-        print(self.file_list[9999:10010])
+        
         print(self.label_list[9999:10010])
         print(self.labelToInt)
 
