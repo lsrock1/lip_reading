@@ -15,7 +15,9 @@ class LipreadingDataset(Dataset):
         self.file_list = LandVideo(Video(self.file_list), landmark)
         self.labelToInt = labelToDict(self.label_list)
         self.aug = aug
-
+        print(self.file_list[9999:10010])
+        print(self.label_list[9999:10010])
+        print(self.labelToInt)
 
     def __len__(self):
         return len(self.file_list)
