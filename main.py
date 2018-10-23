@@ -40,7 +40,6 @@ def main():
 
     #Create the model.
     model = LipRead(options).cuda()
-    print(model)
     print('lr : ', options['training']['learning_rate'])
     print('weight_decay : ', options['training']['weight_decay'])
     optimizer = optim.Adam(
@@ -111,11 +110,11 @@ def main():
                 loss = criterion(outputs, labels)
                 running_loss += loss.item()
                 loss.backward()
-                for p,n in model.named_parameters():
-                    try:
-                        print('===========\ngradient:{}\n----------\n{}'.format(p,torch.sum(n.grad)))
-                    except:
-                        pass
+                # for p,n in model.named_parameters():
+                #     try:
+                #         print('===========\ngradient:{}\n----------\n{}'.format(p,torch.sum(n.grad)))
+                #     except:
+                #         pass
                 optimizer.step()
                 if(i_batch % stats_frequency == 0):
                     print('[%d, %5d] loss: %.8f' %
