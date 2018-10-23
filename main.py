@@ -111,9 +111,11 @@ def main():
                 loss = criterion(outputs, labels)
                 running_loss += loss.item()
                 loss.backward()
-                for p,n in zip(model.parameters(),model._all_weights[0]):
-                    if n[:6] == 'weight':
+                for p,n in model.named_parameters():
+                    try:
                         print('===========\ngradient:{}\n----------\n{}'.format(n,p.grad))
+                    except:
+                        pass
                 optimizer.step()
                 if(i_batch % stats_frequency == 0):
                     print('[%d, %5d] loss: %.8f' %
