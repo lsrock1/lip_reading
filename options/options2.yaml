@@ -1,9 +1,9 @@
-name: baseline_2
+name: baseline_no_aug
 general: 
   usecudnn: true
   usecudnnbenchmark: true
-  model_load: false
-  model_save: false
+  model_load: true
+  model_save: true
   save_path: ./save
 
 input: 
@@ -25,9 +25,9 @@ training:
   train: true
   max_epoch: 15
   start_epoch: 0
-  stats_frequency: 50
+  stats_frequency: 500
   data_path: /home/deepuser/lrw_result
-  learning_rate: 0.00001
+  learning_rate: 0.01
   momentum: 0.
   weight_decay: 0.
   schedule:
