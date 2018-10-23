@@ -15,10 +15,10 @@ model:
   coord: false
   landmark: false
   type: LSTM
-  input_dim: 256
-  hidden_dim: 256
+  input_dim: 1024
+  hidden_dim: 1024
   num_class: 500
-  num_lstm: 3
+  num_lstm: 2
 
 training:
   train: true
