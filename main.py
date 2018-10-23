@@ -100,6 +100,7 @@ def main():
             scheduler.step()
             running_loss = 0.0
             count = 0
+            count_bs = 0
             startTime = datetime.now()
             print("Starting training...")
             for i_batch, sample_batched in enumerate(train_dataloader):
@@ -108,6 +109,7 @@ def main():
                 labels = sample_batched[1].cuda()
                 outputs = model(input)
                 count += model.validator_function()(outputs, labels)
+                count_bs += labels.shape[0]
                 loss = criterion(outputs, labels)
                 running_loss += loss.item()
                 loss.backward()
@@ -119,9 +121,10 @@ def main():
                 optimizer.step()
                 if(i_batch % stats_frequency == 0 and i_batch != 0):
                     print('[%d, %5d] loss: %.8f, acc: %f' %
-                    (epoch + 1, i_batch + 1, running_loss / stats_frequency, count/stats_frequency*batch_size))
+                    (epoch + 1, i_batch + 1, running_loss / stats_frequency, count/count_bs))
                     running_loss = 0.0
                     count = 0
+                    count_bs = 0
                     currentTime = datetime.now()
                     output_iteration(i_batch * batch_size, currentTime - startTime, len(train_dataset))
 
