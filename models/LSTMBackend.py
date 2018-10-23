@@ -41,18 +41,16 @@ def _validate(modelOutput, labels):
 class LSTMBackend(nn.Module):
     def __init__(self, options):
         super(LSTMBackend, self).__init__()
-        self.Module1 = nn.LSTM(input_size=options["model"]["input_dim"],
+        self.lstm = nn.Sequential(
+            nn.LSTM(input_size=options["model"]["input_dim"],
                                 hidden_size=options["model"]["hidden_dim"],
                                 num_layers=options["model"]["num_lstm"],
                                 batch_first=True,
-                                bidirectional=True)
-        self.fc = nn.Linear(options["model"]["hidden_dim"] * 2,
-                                options["model"]["num_class"])
+                                bidirectional=True),
+            nn.Linear(options["model"]["hidden_dim"] * 2, options["model"]["num_class"])
+        )
         self.loss = NLLSequenceLoss()
         self.validator = _validate
 
-    def forward(self, input):
-        input, _ = self.Module1(input)
-        input = self.fc(input)
-
-        return input
+    def forward(self, x):
+        return self.lstm(x)

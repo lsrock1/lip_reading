@@ -116,7 +116,7 @@ def main():
                 #     except:
                 #         pass
                 optimizer.step()
-                if(i_batch % stats_frequency == 0):
+                if(i_batch % stats_frequency == 0 and i_batch != 0):
                     print('[%d, %5d] loss: %.8f' %
                     (epoch + 1, i_batch + 1, running_loss / stats_frequency))
                     running_loss = 0.0
