@@ -16,12 +16,14 @@ class NLLSequenceLoss(nn.Module):
         loss = 0.0
         # bs, length, 500
         # bs
-        input = input.transpose(0, 1).contiguous()
+        length = input.size(1)
+        input = input.view(-1, 500)
+        target = target.unsqueeze(1).expand(-1, length).view(-1)
+        loss = self.criterion(input, target)
+        # for i in range(0, 29):
+        #     loss += self.criterion(input[i], target)
 
-        for i in range(0, 29):
-            loss += self.criterion(input[i], target)
-
-        return loss/29
+        return loss
 
 def _validate(modelOutput, labels):
     averageEnergies = torch.sum(modelOutput.data, 1)
