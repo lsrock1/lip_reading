@@ -41,7 +41,7 @@ class LandVideo:
             channel = np.zeros((1, data.shape[1], data.shape[2], data.shape[3]), dtype=np.int8)
             for index, frame in enumerate(np.load(landmark_dir)):
                 for dot in frame:
-                    channel[0, index, int(dot[1]/2), int(dot[0]/2)] = 1
+                    channel[0, index, int(dot[1]/2) if int(dot[1]/2) < 120 else 119, int(dot[0]/2) if int(dot[0]/2) < 120 else 119] = 1
             data = np.concatenate([data, channel], axis=0)
         return data
 
