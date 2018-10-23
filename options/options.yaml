@@ -7,8 +7,8 @@ general:
   save_path: ./save
 
 input: 
-  batch_size: 8
-  num_worker: 8
+  batch_size: 32
+  num_worker: 32
   shuffle: true
 
 model:
@@ -26,7 +26,7 @@ training:
   start_epoch: 0
   stats_frequency: 50
   data_path: /home/deepuser/lrw_result
-  learning_rate: 0.000000000001
+  learning_rate: 0.001
   momentum: 0.
   weight_decay: 0.
   schedule:
