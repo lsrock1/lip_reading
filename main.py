@@ -43,10 +43,10 @@ def main():
     print('lr : ', options['training']['learning_rate'])
     print('momentum : ', options['training']['momentum'])
     print('weight_decay : ', options['training']['weight_decay'])
-    optimizer = optim.SGD(
+    optimizer = optim.Adam(
                 model.parameters(),
                 lr = options['training']['learning_rate'],
-                momentum = options['training']['momentum'],
+                # momentum = options['training']['momentum'],
                 weight_decay = options['training']['weight_decay']
             )
 
