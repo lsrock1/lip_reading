@@ -1,4 +1,4 @@
-name: landmark
+name: baseline_no_aug
 general: 
   usecudnn: true
   usecudnnbenchmark: true
@@ -7,9 +7,10 @@ general:
   save_path: ./save
 
 input: 
-  batch_size: 36
-  num_worker: 36
+  batch_size: 32
+  num_worker: 32
   shuffle: true
+  aug: false
 
 model:
   coord: true
@@ -24,11 +25,11 @@ training:
   train: true
   max_epoch: 15
   start_epoch: 0
-  stats_frequency: 100
+  stats_frequency: 500
   data_path: /home/deepuser/lrw_result
-  learning_rate: 10
+  learning_rate: 0.01
   momentum: 0.
-  weight_decay: 0.0001
+  weight_decay: 0.
   schedule:
   - 5
   - 10
