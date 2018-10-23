@@ -1,4 +1,3 @@
-from torch.autograd import Variable
 import torch
 import torch.optim as optim
 from datetime import datetime, timedelta

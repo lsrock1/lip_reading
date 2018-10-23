@@ -1,7 +1,6 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch.autograd import Variable
 
 import re
 
@@ -23,12 +22,12 @@ class LipRead(nn.Module):
         def weights_init(m):
             classname = m.__class__.__name__
             if re.search("Conv[123]d", classname):
-                m.weight.data.normal_(0.0, 0.02)
+                nn.init.xavier_uniform_(m)
             elif re.search("BatchNorm[123]d", classname):
-                m.weight.data.fill_(1.0)
+                nn.init.xavier_uniform_(m)
                 m.bias.data.fill_(0)
             elif re.search("Linear", classname):
-                m.bias.data.fill_(0)
+                nn.init.xavier_uniform_(m)
 
         #Apply weight initialization to every module in the model.
         self.apply(weights_init)
