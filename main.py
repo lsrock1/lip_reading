@@ -65,11 +65,11 @@ def main():
     if not os.path.isdir(os.path.join(options["general"]["save_path"], options['name'], 'models')):
         os.mkdir(os.path.join(options["general"]["save_path"], options['name'], 'models'))
     if(options["general"]['model_load']):
-        path = sorted(glob(os.path.join(options["general"]["save_path"], options['name'], 'models', '*.pth')), key=lambda name : int(name.replace('.pth', '').replace('model', '')))
+        path = sorted(glob(os.path.join(options["general"]["save_path"], options['name'], 'models', '*.pth')), key=lambda name : int(name.split('/')[-1].replace('.pth', '').replace('model', '')))
         if path:
             print('load model..')
             model.load_state_dict(torch.load(path[-1]))
-        path = sorted(glob(os.path.join(options["general"]["save_path"], options['name'], 'optimizers', '*.pth')), key=lambda name : int(name.replace('.pth', '').replace('model', '')))
+        path = sorted(glob(os.path.join(options["general"]["save_path"], options['name'], 'optimizers', '*.pth')), key=lambda name : int(name.split('/').replace('.pth', '').replace('model', '')))
         if path:
             print('load optimizer..')
             optimizer.load_state_dict(torch.load(path[-1]))
