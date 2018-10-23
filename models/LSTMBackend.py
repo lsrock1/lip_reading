@@ -18,7 +18,7 @@ class NLLSequenceLoss(nn.Module):
         # bs
         length = input.size(1)
         input = input.view(-1, 500)
-        target = target.unsqueeze(1).expand(-1, length).view(-1)
+        target = target.unsqueeze(1).expand(-1, length).contiguous().view(-1)
         loss = self.criterion(input, target)
         # for i in range(0, 29):
         #     loss += self.criterion(input[i], target)
