@@ -113,7 +113,7 @@ def main():
                 loss.backward()
                 for p,n in model.named_parameters():
                     try:
-                        print('===========\ngradient:{}\n----------\n{}'.format(n,p.grad))
+                        print('===========\ngradient:{}\n----------\n{}'.format(p,n.grad))
                     except:
                         pass
                 optimizer.step()
