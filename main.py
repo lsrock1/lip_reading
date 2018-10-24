@@ -50,7 +50,7 @@ def main():
                 # momentum = options['training']['momentum'],
                 weight_decay = options['training']['weight_decay']
             )
-    if options['training']['schedule']
+    if options['training']['schedule']:
         scheduler = optim.lr_scheduler.MultiStepLR(
                     optimizer,
                     milestones = options['training']['schedule'],
