@@ -35,7 +35,7 @@ def main():
     print("Loading options...")
     with open(args.config, 'r') as optionsFile:
         options = yaml.load(optionsFile.read())
-    options['training']['start_epoch'] = args.start
+    options['training']['start_epoch'] = args.start - 1
     if(options["general"]["usecudnnbenchmark"] and options["general"]["usecudnn"]):
         print("Running cudnn benchmark...")
         torch.backends.cudnn.benchmark = True
