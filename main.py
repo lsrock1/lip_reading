@@ -70,7 +70,7 @@ def main():
         if path:
             print('load {} model..'.format(path[-1]))
             model.load_state_dict(torch.load(path[-1]))
-        path = sorted(glob(os.path.join(options["general"]["save_path"], options['name'], 'optimizers', '*.pth')), key=lambda name : int(name.split('/')[-1].replace('.pth', '').replace('model', '')))
+        path = sorted(glob(os.path.join(options["general"]["save_path"], options['name'], 'optimizers', '*.pth')), key=lambda name : int(name.split('/')[-1].replace('.pth', '').replace('optimizer', '')))
         if path:
             print('load {} optimizer..'.format(path[-1]))
             optimizer.load_state_dict(torch.load(path[-1]))
