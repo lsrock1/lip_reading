@@ -1,4 +1,4 @@
-name: baseline_no_aug
+name: baseline_no_aug_no_decay
 general: 
   usecudnn: true
   usecudnnbenchmark: true
@@ -32,7 +32,6 @@ training:
   weight_decay: 0.
   schedule: false
   lr_decay: 0.1
-  aug: true
 
 validation:
   validate: true

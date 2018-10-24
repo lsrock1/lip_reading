@@ -48,12 +48,12 @@ def main():
                 # momentum = options['training']['momentum'],
                 weight_decay = options['training']['weight_decay']
             )
-
-    scheduler = optim.lr_scheduler.MultiStepLR(
-                optimizer,
-                milestones = options['training']['schedule'],
-                gamma = options['training']['lr_decay']
-            )
+    if options['training']['schedule']
+        scheduler = optim.lr_scheduler.MultiStepLR(
+                    optimizer,
+                    milestones = options['training']['schedule'],
+                    gamma = options['training']['lr_decay']
+                )
 
     criterion = model.loss()
 
@@ -97,7 +97,8 @@ def main():
 
         model.train()
         if(options["training"]["train"]):
-            scheduler.step()
+            if options['training']['schedule']:
+                scheduler.step(epoch)
             running_loss = 0.0
             count = 0
             count_bs = 0
@@ -120,8 +121,10 @@ def main():
                 #         pass
                 optimizer.step()
                 if(i_batch % stats_frequency == 0 and i_batch != 0):
+                    
                     print('[%d, %5d] loss: %.8f, acc: %f' %
                     (epoch + 1, i_batch + 1, running_loss / stats_frequency, count/count_bs))
+                    print('lr {}, name {}'.format(optimizer.get_lr(), options['name']))
                     running_loss = 0.0
                     count = 0
                     count_bs = 0
