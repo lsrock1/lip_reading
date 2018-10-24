@@ -28,12 +28,14 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-c", "--config", type=str,
                             help="configuration file")
+    parser.add_argument("-s", "--start", type=int,
+                            help="start epoch if reload", default=0)
     args = parser.parse_args()
 
     print("Loading options...")
     with open(args.config, 'r') as optionsFile:
         options = yaml.load(optionsFile.read())
-
+    options['training']['start_epoch'] = args.start
     if(options["general"]["usecudnnbenchmark"] and options["general"]["usecudnn"]):
         print("Running cudnn benchmark...")
         torch.backends.cudnn.benchmark = True

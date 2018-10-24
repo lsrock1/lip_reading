@@ -24,7 +24,6 @@ model:
 training:
   train: true
   max_epoch: 15
-  start_epoch: 0
   stats_frequency: 50
   data_path: /home/deepuser/lrw_result
   learning_rate: 0.01
