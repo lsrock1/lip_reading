@@ -126,7 +126,10 @@ def main():
                     
                     print('[%d, %5d] loss: %.8f, acc: %f' %
                     (epoch + 1, i_batch + 1, running_loss / stats_frequency, count/count_bs))
-                    print('lr {}, name {}'.format(optimizer.get_lr(), options['name']))
+                    try:
+                        print('lr {}, name {}'.format(scheduler.get_lr(), options['name']))
+                    except:
+                        print('lr {}, name {}'.format(options['training']['learning_rate'], options['name']))
                     running_loss = 0.0
                     count = 0
                     count_bs = 0
