@@ -9,7 +9,7 @@ class ConvFrontend(nn.Module):
         super(ConvFrontend, self).__init__()
         dim = 1
         if options['model']['coord']:
-            dim += 2
+            dim += 3
         if options['model']['landmark']:
             dim +=1
         self.conv = nn.Conv3d(dim, 64, (5,7,7), stride=(1,2,2), padding=(2,3,3))
