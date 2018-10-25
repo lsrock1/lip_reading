@@ -16,6 +16,7 @@ model:
   coord: false
   landmark: true
   type: LSTM
+  front: RESNET
   input_dim: 256
   hidden_dim: 256
   num_class: 500
