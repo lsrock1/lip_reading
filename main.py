@@ -69,13 +69,13 @@ def main():
         os.mkdir(os.path.join(options["general"]["save_path"], options['name'], 'models'))
     
     if(options["general"]['model_load']):
-        path = glob(os.path.join(options["general"]["save_path"], options['name'], 'models', 'model{}.pth'.format(args.start - 2)))
+        path = glob(os.path.join(options["general"]["save_path"], options['name'], 'models', 'model{}.pth'.format(args.start - 1)))
         #path = sorted(glob(os.path.join(options["general"]["save_path"], options['name'], 'models', '*.pth')), key=lambda name : int(name.split('/')[-1].replace('.pth', '').replace('model', '')))
         if path:
             print('load {} model..'.format(path[-1]))
             model.load_state_dict(torch.load(path[-1]))
         #path = sorted(glob(os.path.join(options["general"]["save_path"], options['name'], 'optimizers', '*.pth')), key=lambda name : int(name.split('/')[-1].replace('.pth', '').replace('optimizer', '')))
-        path = glob(os.path.join(options["general"]["save_path"], options['name'], 'optimizers', 'optimizer{}.pth'.format(args.start - 2)))
+        path = glob(os.path.join(options["general"]["save_path"], options['name'], 'optimizers', 'optimizer{}.pth'.format(args.start - 1)))
         if path:
             print('load {} optimizer..'.format(path[-1]))
             optimizer.load_state_dict(torch.load(path[-1]))
@@ -179,8 +179,8 @@ def main():
         print("Epoch completed")
         if options['general']['model_save']:
             print("saving state..")
-            torch.save(model.state_dict(), os.path.join(options["general"]["save_path"], options['name'], 'models', 'model{}.pth'.format(epoch)))
-            torch.save(optimizer.state_dict(), os.path.join(options["general"]["save_path"], options['name'], 'optimizers', 'optimizer{}.pth'.format(epoch)))
+            torch.save(model.state_dict(), os.path.join(options["general"]["save_path"], options['name'], 'models', 'model{}.pth'.format(epoch+1)))
+            torch.save(optimizer.state_dict(), os.path.join(options["general"]["save_path"], options['name'], 'optimizers', 'optimizer{}.pth'.format(epoch+1)))
 
         model.eval()
         with torch.no_grad():
