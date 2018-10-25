@@ -30,6 +30,8 @@ def main():
                             help="configuration file")
     parser.add_argument("-s", "--start", type=int,
                             help="start epoch if reload", default=0)
+    parser.add_argument("-t", "--test", type=bool,
+                            help="test mode", default=false)
     args = parser.parse_args()
 
     print("Loading options...")
@@ -94,6 +96,41 @@ def main():
                             )
     batch_size = options["input"]["batch_size"]
     stats_frequency = options["training"]["stats_frequency"]
+    if args.test:
+        test_dataset = LipreadingDataset(options['validation']['data_path'],
+                                        "test", False, options['model']['landmark'])
+        test_dataloader = DataLoader(
+            test_dataset,
+            batch_size=options["input"]["batch_size"],
+            shuffle=options["input"]["shuffle"],
+            num_workers=options["input"]["num_worker"],
+            drop_last=True
+        )
+        model.eval()
+        with torch.no_grad():
+            print("Starting testing...")
+            count = 0
+            validator_function = model.validator_function()
+
+            for i_batch, sample_batched in enumerate(test_dataloader):
+                input = sample_batched[0]
+                labels = sample_batched[1]
+
+                input = input.cuda()
+                labels = labels.cuda()
+                
+                outputs = model(input)
+
+                count += validator_function(outputs, labels)
+
+            accuracy = count / len(val_dataset)
+            print('#############test result################')
+            print('correct count: {}, total count: {}, accu: {}'.format(count, len(test_dataset), accuracy))
+            # with open(os.path.join('./', options['name']+'.txt'), "a") as outputfile:
+            #     outputfile.write("\ncorrect count: {}, total count: {} accuracy: {}" .format(count, len(test_dataset), accuracy ))
+            return
+    
+
 
     for epoch in range(options["training"]["start_epoch"], options["training"]["max_epoch"]):
 
