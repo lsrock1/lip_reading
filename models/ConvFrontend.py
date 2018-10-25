@@ -7,7 +7,12 @@ import torch.nn.init as init
 class ConvFrontend(nn.Module):
     def __init__(self, options):
         super(ConvFrontend, self).__init__()
-        self.conv = nn.Conv3d(4 if options['model']['coord'] else 1, 64, (5,7,7), stride=(1,2,2), padding=(2,3,3))
+        dim = 1
+        if options['model']['coord']:
+            dim += 2
+        if options['model']['landmark']:
+            dim +=1
+        self.conv = nn.Conv3d(dim, 64, (5,7,7), stride=(1,2,2), padding=(2,3,3))
         self.norm = nn.BatchNorm3d(64)
         self.pool = nn.MaxPool3d((1,3,3), stride=(1,2,2), padding=(0,1,1))
         if options['model']['coord']:
