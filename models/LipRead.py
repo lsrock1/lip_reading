@@ -8,12 +8,16 @@ from .ConvFrontend import ConvFrontend
 from .ResNetBBC import ResNetBBC
 from .LSTMBackend import LSTMBackend
 from .ConvBackend import ConvBackend
+from .Densenet import Densenet
 
 class LipRead(nn.Module):
     def __init__(self, options):
         super(LipRead, self).__init__()
         self.frontend = ConvFrontend(options)
-        self.resnet = ResNetBBC(options)
+        if options['model']['front'] == 'DENSENET':
+            self.model = Densenet(options)
+        else:
+            self.model = ResNetBBC(options)
         self.lstm = LSTMBackend(options)
 
         #function to initialize the weights and biases of each module. Matches the
@@ -33,7 +37,7 @@ class LipRead(nn.Module):
         self.apply(weights_init)
 
     def forward(self, input):
-        output = self.lstm(self.resnet(self.frontend(input)))
+        output = self.lstm(self.model(self.frontend(input)))
 
         return output
 
