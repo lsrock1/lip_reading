@@ -31,7 +31,7 @@ def main():
     parser.add_argument("-s", "--start", type=int,
                             help="start epoch if reload", default=1)
     parser.add_argument("-t", "--test", type=bool,
-                            help="test mode", default=false)
+                            help="test mode", default=False)
     args = parser.parse_args()
 
     print("Loading options...")
