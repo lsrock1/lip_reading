@@ -29,26 +29,37 @@ class ConvFrontend(nn.Module):
 
 
 class AddCoords(nn.Module):
-    def __init__(self):
+
+    def __init__(self, with_r=False):
         super().__init__()
-        self.is_time_coord = False
+        self.with_r = with_r
 
-    def forward(self, x):
-        bs, _, t_dim, y_dim, x_dim = x.size()
-        x_append = torch.arange(x_dim).view(1, 1, 1, 1, -1).expand(bs, -1, t_dim, y_dim, -1)
-        y_append = torch.arange(y_dim).view(1, 1, 1, -1, 1).expand(bs, -1, t_dim, -1, x_dim)
-        x_append = (x_append / (x_dim-1)) * 2 - 1
-        y_append = (y_append / (y_dim-1)) * 2 - 1
-        t_append = []
-        if self.is_time_coord:
-            t_append = torch.arange(t_dim).view(1, 1, -1, 1, 1).expand(bs, -1, -1, y_dim, x_dim)
-            t_append = (t_append / (t_dim-1)) * 2 - 1
-            t_append = [t_append]
-        
-        if torch.cuda.is_available():
-            x_append = x_append.float().cuda()
-            y_append = y_append.float().cuda()
-            if t_append:
-                t_append = [t_append.float().cuda()]
+    def forward(self, input_tensor):
+        """
+        Args:
+            input_tensor: shape(batch, channel, x_dim, y_dim)
+        """
+        batch_size, _, x_dim, y_dim = input_tensor.size()
 
-        return torch.cat([x , x_append, y_append] + t_append, dim=1)
+        xx_channel = torch.arange(x_dim).repeat(1, y_dim, 1)
+        yy_channel = torch.arange(y_dim).repeat(1, x_dim, 1).transpose(1, 2)
+
+        xx_channel = xx_channel.float() / (x_dim - 1)
+        yy_channel = yy_channel.float() / (y_dim - 1)
+
+        xx_channel = xx_channel * 2 - 1
+        yy_channel = yy_channel * 2 - 1
+
+        xx_channel = xx_channel.repeat(batch_size, 1, 1, 1).transpose(2, 3)
+        yy_channel = yy_channel.repeat(batch_size, 1, 1, 1).transpose(2, 3)
+
+        ret = torch.cat([
+            input_tensor,
+            xx_channel.type_as(input_tensor),
+            yy_channel.type_as(input_tensor)], dim=1)
+
+        if self.with_r:
+            rr = torch.sqrt(torch.pow(xx_channel.type_as(input_tensor) - 0.5, 2) + torch.pow(yy_channel.type_as(input_tensor) - 0.5, 2))
+            ret = torch.cat([ret, rr], dim=1)
+
+        return ret
