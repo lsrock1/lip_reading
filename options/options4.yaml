@@ -7,8 +7,8 @@ general:
   save_path: ./save
 
 input: 
-  batch_size: 16
-  num_worker: 16
+  batch_size: 8
+  num_worker: 8
   shuffle: true
   aug: false
 
