@@ -24,7 +24,7 @@ class LipreadingDataset(Dataset):
         #load video into a tensor
         data = self.file_list[idx]
         label = self.label_list[idx]
-        temporalvolume = bbc(data if self.landmarkloss else data[0], self.aug)
+        temporalvolume = bbc(data[0] if self.landmarkloss else data, self.aug)
         if self.landmarkloss:
             return temporalvolume, self.labelToInt[label], data[1]
         return temporalvolume, self.labelToInt[label]
