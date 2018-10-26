@@ -33,6 +33,7 @@
 
 import torch.nn as nn
 import math
+import torch.nn.functional as F
 import torch.utils.model_zoo as model_zoo
 
 
@@ -271,6 +272,7 @@ class ResNetBBC(nn.Module):
         x = x.view(self.batch_size, -1, self.input_dim)
         if self.landmarkloss and self.training:
             reg = self.fc(self.regressor(x).view(self.batch_size, -1, 2, self.input_dim))
+            reg = F.avg_pool2d(reg, kernel=(1, 42))
             print(reg.size())
             return x, reg
         return x
