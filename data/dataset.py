@@ -25,7 +25,7 @@ class LipreadingDataset(Dataset):
         data = self.file_list[idx]
         label = self.label_list[idx]
         temporalvolume = bbc(data[0] if self.landmarkloss else data[0], self.aug)
-        if self.landmarkloss
+        if self.landmarkloss:
             return temporalvolume, self.labelToInt[label], data[1]
         return temporalvolume, self.labelToInt[label]
 
