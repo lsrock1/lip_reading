@@ -43,7 +43,7 @@ class LipRead(nn.Module):
             x, dot = x
             return x, dot
         x = self.lstm(x)
-
+        print(x.size())
         return x
 
     def loss(self):
