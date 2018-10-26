@@ -23,7 +23,7 @@ model:
   num_lstm: 2
 
 training:
-  train: true
+  train: false
   max_epoch: 15
   start_epoch: 0
   stats_frequency: 50
