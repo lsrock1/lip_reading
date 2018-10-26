@@ -265,7 +265,7 @@ class ResNetBBC(nn.Module):
             nn.Conv2d(29, 29, kernel_size=(1, 3), stride=2),
             nn.ReLU(),
             nn.Conv2d(29, 29, kernel_size=(1, 5), stride=2),
-            nn.AdaptiveAvgPool2d((None, 29, 2, 20))
+            # nn.AdaptiveAvgPool2d((None, 29, 2, 20))
         )
     def forward(self, x):
         x = x.transpose(1, 2).contiguous().view(-1, 64, 28, 28)
