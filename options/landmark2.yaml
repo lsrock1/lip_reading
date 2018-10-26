@@ -23,7 +23,7 @@ model:
   num_lstm: 2
 
 training:
-  train: false
+  train: true
   max_epoch: 15
   start_epoch: 0
   stats_frequency: 50
@@ -32,8 +32,8 @@ training:
   momentum: 0.
   weight_decay: 0.
   schedule:
-  - 5
-  - 10
+  - 8
+  - 15
   lr_decay: 0.1
   aug: true
   landmarkloss: true

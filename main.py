@@ -187,7 +187,7 @@ def main():
                     output_iteration(i_batch * batch_size, currentTime - startTime, len(train_dataset))
 
         print("Epoch completed")
-        if options['general']['model_save']:
+        if options['general']['model_save'] and options['training']['train']:
             print("saving state..")
             torch.save(model.state_dict(), os.path.join(options["general"]["save_path"], options['name'], 'models', 'model{}.pth'.format(epoch+1)))
             torch.save(optimizer.state_dict(), os.path.join(options["general"]["save_path"], options['name'], 'optimizers', 'optimizer{}.pth'.format(epoch+1)))
