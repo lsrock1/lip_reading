@@ -265,6 +265,7 @@ class ResNetBBC(nn.Module):
             nn.Conv2d(29, 29, kernel_size=(1, 3), stride=2),
             nn.ReLU(),
             nn.Conv2d(29, 29, kernel_size=(1, 5), stride=2),
+            nn.AdaptiveAvgPool2d((None, 29, 2, 20))
         )
     def forward(self, x):
         x = x.transpose(1, 2).contiguous().view(-1, 64, 28, 28)
@@ -272,8 +273,6 @@ class ResNetBBC(nn.Module):
         x = x.view(self.batch_size, -1, self.input_dim)
         if self.landmarkloss and self.training:
             reg = self.fc(self.regressor(x).view(self.batch_size, -1, 2, self.input_dim))
-            print(reg.size())
-            reg = F.avg_pool2d(reg, kernel_size=(1, 42))
             print(reg.size())
             return x, reg
         return x
