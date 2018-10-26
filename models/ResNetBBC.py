@@ -256,7 +256,7 @@ class ResNetBBC(nn.Module):
             nn.ReLU()
         )
         self.fc = nn.Sequential(
-            nn.Linear(self.input_dim, 256)
+            nn.Linear(self.input_dim, 256),
             nn.ReLU(),
             nn.Linear(256, 128),
             nn.ReLU(),
