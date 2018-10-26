@@ -13,6 +13,7 @@ from .Densenet import Densenet
 class LipRead(nn.Module):
     def __init__(self, options):
         super(LipRead, self).__init__()
+        self.landmarkloss = options['training']['landmarkloss']
         self.frontend = ConvFrontend(options)
         if options['model']['front'] == 'DENSENET':
             self.model = Densenet(options)
@@ -36,10 +37,14 @@ class LipRead(nn.Module):
         #Apply weight initialization to every module in the model.
         self.apply(weights_init)
 
-    def forward(self, input):
-        output = self.lstm(self.model(self.frontend(input)))
+    def forward(self, x):
+        x = self.model(self.frontend(x))
+        if self.landmarkloss and self.training:
+            x, dot = x
+            return x, dot
+        x = self.lstm(x)
 
-        return output
+        return x
 
     def loss(self):
         return self.lstm.loss

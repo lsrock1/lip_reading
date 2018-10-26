@@ -80,7 +80,7 @@ def main():
             print('load {} optimizer..'.format(path[-1]))
             optimizer.load_state_dict(torch.load(path[-1]))
 
-    train_dataset = LipreadingDataset(options["training"]["data_path"], "train", options['input']['aug'], options['model']['landmark'])
+    train_dataset = LipreadingDataset(options["training"]["data_path"], "train", options['input']['aug'], options['model']['landmark'], options['training']['landmarkloss'])
     train_dataloader = DataLoader(
                         train_dataset,
                         batch_size=options["input"]["batch_size"],
@@ -148,12 +148,22 @@ def main():
             print("Starting training...")
             for i_batch, sample_batched in enumerate(train_dataloader):
                 optimizer.zero_grad()
-                input = sample_batched[0].cuda()
-                labels = sample_batched[1].cuda()
-                outputs = model(input)
+                if options['training']['landmarkloss']:
+                    x = sample_batched[0].cuda()
+                    labels = sample_batched[1].cuda()
+                    dot_labels = sample_batched[2].cuda()
+                else:
+                    x = sample_batched[0].cuda()
+                    labels = sample_batched[1].cuda()
+                outputs = model(x)
+                if options['training']['landmarkloss']:
+                    outputs, dot = outputs
+                    loss = criterion(outputs, labels, dot, dot_labels)
+                else:
+                    loss = criterion(outputs, labels)
                 count += model.validator_function()(outputs, labels)
                 count_bs += labels.shape[0]
-                loss = criterion(outputs, labels)
+                
                 running_loss += loss.item()
                 loss.backward()
                 # for p,n in model.named_parameters():

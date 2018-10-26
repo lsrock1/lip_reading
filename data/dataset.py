@@ -8,14 +8,14 @@ import numpy as np
 
 class LipreadingDataset(Dataset):
     """BBC Lip Reading dataset."""
-    def __init__(self, directory, data_type, aug=True, landmark=False):
+    def __init__(self, directory, data_type, aug=True, landmark=False, landmarkloss=False):
         self.file_list = sorted(glob(os.path.join(directory, '*', data_type, '*.mpg')))
         print('{} set: {}'.format(data_type, len(self.file_list)))
         self.label_list = getLabelFromFile(self.file_list)
-        self.file_list = LandVideo(Video(self.file_list), landmark)
+        self.file_list = LandVideo(Video(self.file_list), data_type, landmark, landmarkloss)
         self.labelToInt = labelToDict(self.label_list)
         self.aug = aug
-
+        self.landmarkloss = landmarkloss
 
     def __len__(self):
         return len(self.file_list)
@@ -24,15 +24,18 @@ class LipreadingDataset(Dataset):
         #load video into a tensor
         data = self.file_list[idx]
         label = self.label_list[idx]
-        temporalvolume = bbc(data, self.aug)
-
+        temporalvolume = bbc(data[0] if self.landmarkloss else data[0], self.aug)
+        if self.landmarkloss
+            return temporalvolume, self.labelToInt[label], data[1]
         return temporalvolume, self.labelToInt[label]
 
 
 class LandVideo:
-    def __init__(self, video, isLandmark = False):
+    def __init__(self, video, data_type, isLandmark = False, landmarkloss):
         self.video = video
         self.isLandmark = isLandmark
+        self.landmarkloss = landmarkloss
+        self.data_type = data_type
 
     def __getitem__(self, key):
         data = self.video[key]
@@ -43,6 +46,8 @@ class LandVideo:
                 for dot in frame:
                     channel[0, index, int(dot[1]/2) if int(dot[1]/2) < 120 else 119, int(dot[0]/2) if int(dot[0]/2) < 120 else 119] = 255
             data = np.concatenate([data, channel], axis=0)
+            if self.landmarkloss and self.data_type:
+                return data, torch.from_numpy(np.load(landmark_dir))
         return data
 
     def __len__(self):
