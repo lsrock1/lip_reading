@@ -41,6 +41,7 @@ class LipRead(nn.Module):
         x = self.model(self.frontend(x))
         if self.landmarkloss and self.training:
             x, dot = x
+            x = self.lstm(x)
             return x, dot
         x = self.lstm(x)
         return x
