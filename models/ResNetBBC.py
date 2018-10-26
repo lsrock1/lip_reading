@@ -273,6 +273,5 @@ class ResNetBBC(nn.Module):
         x = x.view(self.batch_size, -1, self.input_dim)
         if self.landmarkloss and self.training:
             reg = self.fc(self.regressor(x).view(self.batch_size, -1, 2, self.input_dim))
-            print(reg.size())
             return x, reg
         return x
