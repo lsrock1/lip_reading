@@ -31,7 +31,7 @@ class LipreadingDataset(Dataset):
 
 
 class LandVideo:
-    def __init__(self, video, data_type, isLandmark = False, landmarkloss):
+    def __init__(self, video, data_type, isLandmark = False, landmarkloss=False):
         self.video = video
         self.isLandmark = isLandmark
         self.landmarkloss = landmarkloss
