@@ -252,16 +252,14 @@ class ResNetBBC(nn.Module):
         self.landmarkloss = options['training']['landmarkloss']
         self.regressor = nn.Sequential(
             nn.Linear(self.input_dim, self.input_dim*2),
-            nn.BatchNorm1d(self.input_dim*2),
             nn.ReLU()
         )
         self.fc = nn.Sequential(
-            nn.Linear(self.input_dim, 256),
+            nn.Conv2d(29, 29, kernel_size=(1, 3)),
+            nn.BatchNorm2d(29),
             nn.ReLU(),
-            nn.Linear(256, 128),
-            nn.ReLU(),
-            nn.Linear(128, 64),
-            nn.AvgPool1d(45)
+            nn.Conv2d(29, 29, kernel_size=(1, 3)),
+            nn.Batchnorm2d(29)
         )
     def forward(self, x):
         x = x.transpose(1, 2).contiguous().view(-1, 64, 28, 28)
@@ -269,5 +267,6 @@ class ResNetBBC(nn.Module):
         x = x.view(self.batch_size, -1, self.input_dim)
         if self.landmarkloss and self.training:
             reg = self.fc(self.regressor(x).view(self.batch_size, -1, 2, self.input_dim))
+            print(reg.size())
             return x, reg
         return x
