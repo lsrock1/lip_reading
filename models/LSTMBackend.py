@@ -11,7 +11,7 @@ class NLLSequenceLoss(nn.Module):
     def __init__(self):
         super(NLLSequenceLoss, self).__init__()
         self.criterion = nn.CrossEntropyLoss()
-        self.dot_crit = nn.MSELoss
+        self.dot_crit = nn.MSELoss()
 
     def forward(self, input, target, dot=False, dot_labels=False):
         loss = 0.0
