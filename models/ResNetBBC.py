@@ -272,6 +272,6 @@ class ResNetBBC(nn.Module):
         x = self.resnetModel(x)
         x = x.view(self.batch_size, -1, self.input_dim)
         if self.landmarkloss and self.training:
-            reg = self.fc(self.regressor(x).view(self.batch_size, -1, 2, self.input_dim))
+            reg = self.fc(self.regressor(x).view(self.batch_size, -1, 2, self.input_dim)).transpose(2,3).contiguous()
             return x, reg
         return x

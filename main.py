@@ -158,7 +158,6 @@ def main():
                 outputs = model(x)
                 if options['training']['landmarkloss']:
                     outputs, dot = outputs
-                    print(outputs.size(), dot.size())
                     loss = criterion(outputs, labels, dot, dot_labels)
                 else:
                     loss = criterion(outputs, labels)
