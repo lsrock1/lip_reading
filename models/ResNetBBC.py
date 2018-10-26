@@ -259,7 +259,11 @@ class ResNetBBC(nn.Module):
             nn.BatchNorm2d(29),
             nn.ReLU(),
             nn.Conv2d(29, 29, kernel_size=(1, 3)),
-            nn.BatchNorm2d(29)
+            nn.BatchNorm2d(29),
+            nn.ReLU(),
+            nn.Conv2d(29, 29, kernel_size=(1, 3)),
+            nn.ReLU(),
+            nn.Conv2d(29, 29, kernel_size=(1, 5)),
         )
     def forward(self, x):
         x = x.transpose(1, 2).contiguous().view(-1, 64, 28, 28)
