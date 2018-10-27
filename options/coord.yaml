@@ -34,7 +34,7 @@ training:
   schedule:
   - 5
   lr_decay: 0.1
-  aug: true
+  landmarkloss: false
 
 validation:
   validate: true
