@@ -17,8 +17,10 @@ class LipRead(nn.Module):
         self.frontend = ConvFrontend(options)
         if options['model']['front'] == 'DENSENET':
             self.model = Densenet(options)
+            self.resnet = None
         else:
-            self.model = ResNetBBC(options)
+            self.resnet = ResNetBBC(options)
+            self.model = None
         self.lstm = LSTMBackend(options)
 
         #function to initialize the weights and biases of each module. Matches the
@@ -38,7 +40,10 @@ class LipRead(nn.Module):
         self.apply(weights_init)
 
     def forward(self, x):
-        x = self.model(self.frontend(x))
+        if self.model:
+            x = self.model(self.frontend(x))
+        else:
+            x = self.resnet(self.frontend(x))
         if self.landmarkloss and self.training:
             x, dot = x
             x = self.lstm(x)
