@@ -2,7 +2,7 @@ name: baseline_no_aug_coord
 general: 
   usecudnn: true
   usecudnnbenchmark: true
-  model_load: false
+  model_load: true
   model_save: true
   save_path: ./save
 
