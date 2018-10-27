@@ -251,11 +251,12 @@ class ResNetBBC(nn.Module):
         self.resnetModel = resnet34(False, num_classes=options["model"]["input_dim"])
         self.input_dim = options['model']['input_dim']
         self.landmarkloss = options['training']['landmarkloss']
-        self.regressor = nn.Sequential(
-            nn.Linear(self.input_dim, self.input_dim*2),
-            nn.ReLU()
-        )
+        
         if self.landmarkloss:
+            self.regressor = nn.Sequential(
+                nn.Linear(self.input_dim, self.input_dim*2),
+                nn.ReLU()
+            )
             self.fc = nn.Sequential(
                 nn.Conv2d(29, 29, kernel_size=(1, 3)),
                 nn.BatchNorm2d(29),
