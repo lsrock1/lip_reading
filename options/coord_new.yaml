@@ -1,4 +1,4 @@
-name: landmark_coord_loss_new
+name: coord_new
 general: 
   usecudnn: true
   usecudnnbenchmark: true
@@ -14,7 +14,7 @@ input:
 
 model:
   coord: true
-  landmark: true
+  landmark: false
   type: LSTM
   front: RESNET
   input_dim: 256
@@ -37,7 +37,7 @@ training:
   - 8
   - 10
   lr_decay: 0.1
-  landmarkloss: true
+  landmarkloss: false
 
 validation:
   validate: true
