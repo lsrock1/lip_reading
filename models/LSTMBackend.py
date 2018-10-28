@@ -22,7 +22,7 @@ class NLLSequenceLoss(nn.Module):
         target = target.unsqueeze(1).expand(-1, length).contiguous().view(-1)
         loss = self.criterion(input, target)
         if not isinstance(dot_labels, bool):
-            loss += self.dot_crit(dot, dot_labels.float()*125 + 125)
+            loss += self.dot_crit(dot*125 + 125, dot_labels.float())
         # for i in range(0, 29):
         #     loss += self.criterion(input[i], target)
 
