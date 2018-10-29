@@ -8,7 +8,7 @@ import numpy as np
 
 class LipreadingDataset(Dataset):
     """BBC Lip Reading dataset."""
-    def __init__(self, directory, data_type, aug=True, landmark=False, landmarkloss=False):
+    def __init__(self, directory, data_type, aug=True, landmark=False, landmarkloss=False, seperate=False):
         self.file_list = sorted(glob(os.path.join(directory, '*', data_type, '*.mpg')))
         print('{} set: {}'.format(data_type, len(self.file_list)))
         self.label_list = getLabelFromFile(self.file_list)
@@ -16,6 +16,7 @@ class LipreadingDataset(Dataset):
         self.labelToInt = labelToDict(self.label_list)
         self.aug = aug
         self.landmarkloss = landmarkloss
+        self.seperate = seperate
 
     def __len__(self):
         return len(self.file_list)
@@ -25,17 +26,18 @@ class LipreadingDataset(Dataset):
         data = self.file_list[idx]
         label = self.label_list[idx]
         temporalvolume = bbc(data[0] if self.landmarkloss else data, self.aug)
-        if self.landmarkloss:
+        if self.landmarkloss or self.seperate:
             return temporalvolume, self.labelToInt[label], data[1]
         return temporalvolume, self.labelToInt[label]
 
 
 class LandVideo:
-    def __init__(self, video, data_type, isLandmark = False, landmarkloss=False):
+    def __init__(self, video, data_type, isLandmark = False, landmarkloss=False, seperate=False):
         self.video = video
         self.isLandmark = isLandmark
         self.landmarkloss = landmarkloss
         self.data_type = data_type
+        self.seperate = seperate
 
     def __getitem__(self, key):
         data = self.video[key]
@@ -46,7 +48,7 @@ class LandVideo:
                 for dot in frame:
                     channel[0, index, int(dot[1]/2) if int(dot[1]/2) < 120 else 119, int(dot[0]/2) if int(dot[0]/2) < 120 else 119] = 255
             data = np.concatenate([data, channel], axis=0)
-        if self.landmarkloss and self.data_type == 'train':
+        if (self.landmarkloss and self.data_type == 'train') or self.seperate:
             landmark_dir = self.video.getFile(key).split('.mpg')[0] + '/origin.npy'
             return data, torch.from_numpy(np.load(landmark_dir))
         return data
