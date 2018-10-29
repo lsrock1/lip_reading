@@ -1,4 +1,4 @@
-name: coord_new
+name: baseline_new
 general: 
   usecudnn: true
   usecudnnbenchmark: true
@@ -13,7 +13,7 @@ input:
   aug: false
 
 model:
-  coord: true
+  coord: false
   landmark: false
   type: LSTM
   front: RESNET
@@ -25,7 +25,8 @@ model:
 training:
   train: true
   max_epoch: 15
-  stats_frequency: 50
+  start_epoch: 0
+  stats_frequency: 5
   data_path: /home/deepuser/lrw_result
   learning_rate: 0.0003
   momentum: 0.

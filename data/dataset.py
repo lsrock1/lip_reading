@@ -46,8 +46,9 @@ class LandVideo:
                 for dot in frame:
                     channel[0, index, int(dot[1]/2) if int(dot[1]/2) < 120 else 119, int(dot[0]/2) if int(dot[0]/2) < 120 else 119] = 255
             data = np.concatenate([data, channel], axis=0)
-            if self.landmarkloss and self.data_type:
-                return data, torch.from_numpy(np.load(landmark_dir))
+        if self.landmarkloss and self.data_type == 'train':
+            landmark_dir = self.video.getFile(key).split('.mpg')[0] + '/origin.npy'
+            return data, torch.from_numpy(np.load(landmark_dir))
         return data
 
     def __len__(self):
