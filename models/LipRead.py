@@ -52,6 +52,7 @@ class LipRead(nn.Module):
 
     def forward(self, x, landmark=None):
         if self.embedding:
+            print(landmark.size())
             landmark = self.embedding(landmark)
         if self.model:
             x = self.model(self.frontend(x))
