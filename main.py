@@ -152,7 +152,7 @@ def main():
                 if options['training']['landmarkloss'] or options['model']['seperate']:
                     x = sample_batched[0].cuda()
                     labels = sample_batched[1].cuda()
-                    dot_labels = sample_batched[2].cuda()
+                    dot_labels = sample_batched[2].float().cuda()
                 else:
                     x = sample_batched[0].cuda()
                     labels = sample_batched[1].cuda()
