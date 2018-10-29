@@ -26,7 +26,7 @@ class LipRead(nn.Module):
             self.embedding = nn.Sequential(
                 nn.Linear(40, 64),
                 nn.BatchNorm1d(29),
-                nn.ReLU()
+                nn.ReLU(),
                 nn.Linear(64, 128),
                 nn.BatchNorm1d(29),
                 nn.ReLU()
