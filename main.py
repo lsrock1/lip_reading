@@ -204,13 +204,17 @@ def main():
                 validator_function = model.validator_function()
 
                 for i_batch, sample_batched in enumerate(val_dataloader):
-                    input = sample_batched[0]
-                    labels = sample_batched[1]
-
-                    input = input.cuda()
-                    labels = labels.cuda()
-                    
-                    outputs = model(input)
+                    if options['model']['seperate']:
+                        x = sample_batched[0].cuda()
+                        labels = sample_batched[1].cuda()
+                        dot_labels = sample_batched[2].float().cuda()
+                    else:
+                        x = sample_batched[0].cuda()
+                        labels = sample_batched[1].cuda()
+                    if not options['model']['seperate']:
+                        outputs = model(x)
+                    else:
+                        outputs = model(x, dot_labels)
 
                     count += validator_function(outputs, labels)
 
