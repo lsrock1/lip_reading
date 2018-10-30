@@ -61,7 +61,8 @@ class LipRead(nn.Module):
             x, dot = x
             x = self.lstm(x)
             return x, dot
-        x = torch.cat([x, landmark], dim=2)
+        if self.embedding:
+            x = torch.cat([x, landmark], dim=2)
         x = self.lstm(x)
         return x
 
