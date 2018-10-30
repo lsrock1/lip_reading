@@ -29,8 +29,8 @@ class LipreadingDataset(Dataset):
         #temporalvolume = bbc(data[0] if self.landmarkloss or self.seperate else data, self.aug)
         temporalvolume = data[0][:, :, 4:116, 4:116] if self.landmarkloss or self.seperate else data[:, :, 4:116, 4:116]
         if self.landmarkloss or self.seperate:
-            return torch.tensor(temporalvolume), self.labelToInt[label], data[1]
-        return torch.tensor(temporalvolume), self.labelToInt[label]
+            return torch.tensor(temporalvolume).float(), self.labelToInt[label], data[1]
+        return torch.tensor(temporalvolume).float(), self.labelToInt[label]
 
 
 class LandVideo:
