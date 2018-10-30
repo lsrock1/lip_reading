@@ -1,4 +1,5 @@
 from torch.utils.data import Dataset
+import torch
 from .preprocess import *
 import os
 from glob import glob
@@ -25,10 +26,11 @@ class LipreadingDataset(Dataset):
         #load video into a tensor
         data = self.file_list[idx]
         label = self.label_list[idx]
-        temporalvolume = bbc(data[0] if self.landmarkloss or self.seperate else data, self.aug)
+        #temporalvolume = bbc(data[0] if self.landmarkloss or self.seperate else data, self.aug)
+        temporalvolume = data[0][:, :, 4:116, 4:116] if self.landmarkloss or self.seperate else data[:, :, 4:116, 4:116]
         if self.landmarkloss or self.seperate:
-            return temporalvolume, self.labelToInt[label], data[1]
-        return temporalvolume, self.labelToInt[label]
+            return torch.tensor(temporalvolume), self.labelToInt[label], data[1]
+        return torch.tensor(temporalvolume), self.labelToInt[label]
 
 
 class LandVideo:
@@ -43,11 +45,12 @@ class LandVideo:
         data = self.video[key]
         if self.isLandmark:
             landmark_dir = self.video.getFile(key).split('.mpg')[0] + '/origin.npy'
-            channel = np.zeros((1, data.shape[1], data.shape[2], data.shape[3]), dtype=np.int8)
+            channel = np.zeros((1, data.shape[1], data.shape[2], data.shape[3]), dtype=np.float64)
             for index, frame in enumerate(np.load(landmark_dir)):
                 for dot in frame:
-                    channel[0, index, int(dot[1]/2) if int(dot[1]/2) < 120 else 119, int(dot[0]/2) if int(dot[0]/2) < 120 else 119] = 255
-            data = np.concatenate([data, channel], axis=0)
+                    channel[0, index, :, :] += make_gaussian((120, 120), center=(int(dot[0]/2) if int(dot[0]/2) < 120 else 119, int(dot[1]/2) if int(dot[1]/2) < 120 else 119))
+                    #channel[0, index, int(dot[1]/2) if int(dot[1]/2) < 120 else 119, int(dot[0]/2) if int(dot[0]/2) < 120 else 119] = 255
+            data = np.concatenate([data/255, channel.clip(min=0)], axis=0)
         if (self.landmarkloss and self.data_type == 'train') or self.seperate:
             landmark_dir = self.video.getFile(key).split('.mpg')[0] + '/origin.npy'
             return data, torch.from_numpy(np.load(landmark_dir))
@@ -94,3 +97,22 @@ def labelToDict(label_list):
         sorted(list(set(label_list))),
         list(range(len(label_list)))
     ))
+
+def make_gaussian(size, sigma=10, center=None, d_type=np.float64):
+    """ Make a square gaussian kernel.
+    size: is the dimensions of the output gaussian
+    sigma: is full-width-half-maximum, which
+    can be thought of as an effective radius.
+    """
+
+    x = np.arange(0, size[1], 1, float)
+    y = np.arange(0, size[0], 1, float)
+    y = y[:, np.newaxis]
+
+    if center is None:
+        x0 = y0 = size[0] // 2
+    else:
+        x0 = center[0]
+        y0 = center[1]
+
+    return np.exp(-4 * np.log(2) * ((x - x0) ** 2 + (y - y0) ** 2) / sigma ** 2).astype(d_type)
