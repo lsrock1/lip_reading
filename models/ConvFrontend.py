@@ -10,7 +10,7 @@ class ConvFrontend(nn.Module):
         dim = 1
         if options['model']['coord']:
             dim += 2
-        if options['model']['landmark']:
+        if options['model']['landmark'] and not options['model']['landmarkonly']:
             dim +=1
         self.conv = nn.Conv3d(dim, 64, (5,7,7), stride=(1,2,2), padding=(2,3,3))
         self.norm = nn.BatchNorm3d(64)
