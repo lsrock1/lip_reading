@@ -21,6 +21,8 @@ model:
   hidden_dim: 256
   num_class: 500
   num_lstm: 2
+  seperate_dim: 0
+  seperate: false
 
 training:
   train: true
