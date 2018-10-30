@@ -1,0 +1,50 @@
+name: landmarkonly
+general: 
+  usecudnn: true
+  usecudnnbenchmark: true
+  model_load: true
+  model_save: true
+  save_path: ./save
+
+input: 
+  batch_size: 32
+  num_worker: 32
+  shuffle: true
+  aug: false
+
+model:
+  coord: false
+  landmark: true
+  type: LSTM
+  front: RESNET
+  input_dim: 256
+  hidden_dim: 256
+  num_class: 500
+  num_lstm: 2
+  seperate_dim: 0
+  seperate: false
+  landmarkonly: true
+
+training:
+  train: true
+  max_epoch: 15
+  start_epoch: 0
+  stats_frequency: 50
+  data_path: /home/deepuser/lrw_result
+  learning_rate: 0.0003
+  momentum: 0.
+  weight_decay: 0.
+  schedule:
+  - 2
+  - 4
+  - 6
+  - 8
+  - 10
+  lr_decay: 0.5
+  landmarkloss: false
+
+validation:
+  validate: true
+  data_path: /home/deepuser/lrw_result
+  save_accuracy: true
+  accuracy_path: ./

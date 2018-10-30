@@ -80,7 +80,10 @@ def main():
             print('load {} optimizer..'.format(path[-1]))
             optimizer.load_state_dict(torch.load(path[-1]))
 
-    train_dataset = LipreadingDataset(options["training"]["data_path"], "train", options['input']['aug'], options['model']['landmark'], options['training']['landmarkloss'], options['model']['seperate'])
+    train_dataset = LipreadingDataset(
+        options["training"]["data_path"], "train", 
+        options['input']['aug'], options['model']['landmark'], 
+        options['training']['landmarkloss'], options['model']['seperate'], options['model']['landmarkonly'])
     train_dataloader = DataLoader(
                         train_dataset,
                         batch_size=options["input"]["batch_size"],
@@ -90,7 +93,8 @@ def main():
                     )
     val_dataset = LipreadingDataset(options['validation']['data_path'],
                                     "val", False, options['model']['landmark'],
-                                    False, options['model']['seperate'])
+                                    False, options['model']['seperate'],
+                                    options['model']['landmarkonly'])
     val_dataloader = DataLoader(
                                 val_dataset,
                                 batch_size=options["input"]["batch_size"],
@@ -102,7 +106,9 @@ def main():
     stats_frequency = options["training"]["stats_frequency"]
     if args.test:
         test_dataset = LipreadingDataset(options['validation']['data_path'],
-                                        "test", False, options['model']['landmark'], False, options['model']['seperate'])
+                                        "test", False, options['model']['landmark'], 
+                                        False, options['model']['seperate'],
+                                        options['model']['landmarkonly'])
         test_dataloader = DataLoader(
             test_dataset,
             batch_size=options["input"]["batch_size"],
