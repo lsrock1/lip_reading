@@ -59,7 +59,7 @@ class LipRead(nn.Module):
 
     def forward(self, x, landmark=None):
         if self.attn:
-            x = self.attention(x, landmark, x)
+            x = self.attention(x, landmark)
         if self.embedding:
             landmark = self.embedding(landmark.view(landmark.size(0), 29, -1))
         if self.model:
@@ -81,12 +81,12 @@ class LipRead(nn.Module):
     def validator_function(self):
         return self.lstm.validator
 
-    def attention(self, query, key, value):
+    def attention(self, query, key, value=None):
         bs, c, length, h, _ = query.size()
         query = self.attn[0](query.squeeze(1)).view(bs, length, -1, 1)
         key = self.attn[1](key.squeeze(1)).view(bs, length, -1, 1).transpose(-2, -1)
-        value = self.attn[2](value.squeeze(1)).view(bs, length, -1, 1)
         attn = F.softmax(torch.matmul(query, key), dim=-1)
+        value = self.attn[2](query.squeeze(1)).view(bs, length, -1, 1)
         del query, key
-        return self.up(torch.matmul(attn, v).view(bs, 1, length, int(h/2), int(h/2)).contiguous())
+        return self.up(torch.matmul(attn, value).view(bs, 1, length, int(h/2), int(h/2)).contiguous())
 
