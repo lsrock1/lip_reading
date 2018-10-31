@@ -40,7 +40,8 @@ class LipRead(nn.Module):
                 [nn.Conv2d(29, 29, kernel_size=1)]
             )
             self.zip2 = nn.ModuleList(
-                [nn.Sequential(nn.Linear(112, 56), nn.ReLU(), nn.Linear(56, 1)) for i in range(3)]
+                [nn.Sequential(nn.Linear(112, 56), nn.ReLU(), nn.Linear(56, 1)) for i in range(2)] +
+                [nn.Conv2d(29, 29, kernel_size=1)]
             )
         else:
             self.zip1 = None
@@ -104,6 +105,5 @@ class LipRead(nn.Module):
                 self.zip2[0](query.transpose(-2, -1)),
                 self.zip2[1](key.transpose(-2, -1)).transpose(-2, -1)),
                 dim=-1)
-        print(torch.matmul(self.zip2[2](result), attn.transpose(-2, -1)).size())
         return torch.matmul(self.zip2[2](result), attn.transpose(-2, -1)).view(bs, 1, length, h, h)
 
