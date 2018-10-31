@@ -81,7 +81,7 @@ class LipRead(nn.Module):
     def validator_function(self):
         return self.lstm.validator
 
-    def attention(query, key, value):
+    def attention(self, query, key, value):
         bs, length, h, _ = query.size()
         q = self.attn[0](query).view(bs, length, -1, 1)
         k = self.attn[1](key).view(bs, length, -1, 1).transpose(-2, -1)
