@@ -35,8 +35,12 @@ class LipRead(nn.Module):
             self.embedding = None
 
         if options['model']['seperate'] == 'attention':
-            self.attn = nn.ModuleList(
-                [nn.Conv2d(29, 29, kernel_size=2, stride=2) for i in range(3)]
+            self.zip1 = nn.ModuleList(
+                [nn.Sequential(nn.Linear(112, 56), nn.ReLU(), nn.Linear(56, 1)) for i in range(2)] +
+                [nn.Conv2d(29, 29, kernel_size=1)]
+            )
+            self.zip2 = nn.ModuleList(
+                [nn.Sequential(nn.Linear(112, 56), nn.ReLU(), nn.Linear(56, 1)) for i in range(3)]
             )
             self.up = nn.ConvTranspose2d(29, 29, kernel_size=2, stride=2)
         else:
@@ -83,10 +87,22 @@ class LipRead(nn.Module):
 
     def attention(self, query, key, value=None):
         bs, c, length, h, _ = query.size()
-        query = self.attn[0](query.squeeze(1)).view(bs, length, -1, 1)
-        key = self.attn[1](key.squeeze(1)).view(bs, length, -1, 1).transpose(-2, -1)
-        attn = F.softmax(torch.matmul(query, key), dim=-1)
-        value = self.attn[2](query.squeeze(1)).view(bs, length, -1, 1)
-        del query, key
-        return self.up(torch.matmul(attn, value).view(bs, 1, length, int(h/2), int(h/2)).contiguous())
+        # bs 29 112 112
+        # height
+        # zip -> bs 29 112 (width -> 1)
+        query = query.squeeze(1)
+        key = key.squeeze(1)
+        attn = F.softmax(
+            torch.matmul(
+                self.zip1[0](query),
+                self.zip1[1](key).transpose(-2, -1)),
+                dim=-1)
+        result = torch.matmul(attn, self.attn[2](query))
+        # zip -> bs 29 112 (height -> 1)
+        attn = F.softmax(
+            torch.matmul(
+                self.zip2[0](query.transpose(-2, -1)),
+                self.zip2[1](key.transpose(-2, -1)).transpose(-2, -1)),
+                dim=-1)
+        return torch.matmul(attn, self.zip2[2](result))
 
