@@ -23,6 +23,7 @@ model:
   num_lstm: 2
   seperate_dim: 0
   seperate: attention
+  landmarkonly: false
 
 training:
   train: true
