@@ -34,6 +34,13 @@ class LipRead(nn.Module):
         else:
             self.embedding = None
 
+        if options['model']['seperate'] == 'attention':
+            self.attn = nn.ModuleList(
+                [nn.Conv2d(29, 29, kernel_size=2, stride=2) for i in range(3)]
+            )
+            self.up = nn.ConvTranspose2d(29, 29, kernel_size=2, stride=2)
+        else:
+            self.attn = None
         #function to initialize the weights and biases of each module. Matches the
         #classname with a regular expression to determine the type of the module, then
         #initializes the weights for it.
@@ -51,6 +58,8 @@ class LipRead(nn.Module):
         self.apply(weights_init)
 
     def forward(self, x, landmark=None):
+        if self.attn:
+            x = self.attention(x, landmark, x)
         if self.embedding:
             landmark = self.embedding(landmark.view(landmark.size(0), 29, -1))
         if self.model:
@@ -71,3 +80,13 @@ class LipRead(nn.Module):
 
     def validator_function(self):
         return self.lstm.validator
+
+    def attention(query, key, value):
+        bs, length, h, _ = query.size()
+        q = self.attn[0](query).view(bs, length, -1, 1)
+        k = self.attn[1](key).view(bs, length, -1, 1).transpose(-2, -1)
+        v = self.attn[2](value).view(bs, length, -1, 1)
+        scores = torch.matmul(q, k)
+        attn = F.softmax(scores, dim=-1)
+        return self.up(torch.matmul(attn, v).view(bs, length, int(h/2), int(h/2)).contiguous())
+
