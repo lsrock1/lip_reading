@@ -1,4 +1,4 @@
-name: heatmap
+name: attention
 general: 
   usecudnn: true
   usecudnnbenchmark: true
