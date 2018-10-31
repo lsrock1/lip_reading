@@ -43,7 +43,7 @@ def main():
         torch.backends.cudnn.benchmark = True
 
     #Create the model.
-    model = LipRead(options).cuda()
+    model = nn.DataParallel(LipRead(options).cuda())
     print('lr : ', options['training']['learning_rate'])
     print('weight_decay : ', options['training']['weight_decay'])
     optimizer = optim.Adam(
