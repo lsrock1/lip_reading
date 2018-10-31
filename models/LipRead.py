@@ -42,9 +42,8 @@ class LipRead(nn.Module):
             self.zip2 = nn.ModuleList(
                 [nn.Sequential(nn.Linear(112, 56), nn.ReLU(), nn.Linear(56, 1)) for i in range(3)]
             )
-            self.up = nn.ConvTranspose2d(29, 29, kernel_size=2, stride=2)
         else:
-            self.attn = None
+            self.zip1 = None
         #function to initialize the weights and biases of each module. Matches the
         #classname with a regular expression to determine the type of the module, then
         #initializes the weights for it.
@@ -62,7 +61,7 @@ class LipRead(nn.Module):
         self.apply(weights_init)
 
     def forward(self, x, landmark=None):
-        if self.attn:
+        if self.zip1:
             x = self.attention(x, landmark)
         if self.embedding:
             landmark = self.embedding(landmark.view(landmark.size(0), 29, -1))
@@ -97,7 +96,7 @@ class LipRead(nn.Module):
                 self.zip1[0](query),
                 self.zip1[1](key).transpose(-2, -1)),
                 dim=-1)
-        result = torch.matmul(attn, self.attn[2](query))
+        result = torch.matmul(attn, self.zip1[2](query))
         # zip -> bs 29 112 (height -> 1)
         attn = F.softmax(
             torch.matmul(
