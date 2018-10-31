@@ -10,6 +10,7 @@ from glob import glob
 import yaml
 import argparse
 import os
+from torch import nn
 
 def timedelta_string(timedelta):
     totalSeconds = int(timedelta.total_seconds())
