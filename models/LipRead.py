@@ -86,9 +86,7 @@ class LipRead(nn.Module):
         query = self.attn[0](query.squeeze(1)).view(bs, length, -1, 1)
         key = self.attn[1](key.squeeze(1)).view(bs, length, -1, 1).transpose(-2, -1)
         value = self.attn[2](value.squeeze(1)).view(bs, length, -1, 1)
-        query = torch.matmul(query, key)
-        del key
-        attn = F.softmax(scores, dim=-1)
-        del scores
+        attn = F.softmax(torch.matmul(query, key), dim=-1)
+        del query, key
         return self.up(torch.matmul(attn, v).view(bs, 1, length, int(h/2), int(h/2)).contiguous())
 
