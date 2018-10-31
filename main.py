@@ -33,6 +33,8 @@ def main():
                             help="start epoch if reload", default=1)
     parser.add_argument("-t", "--test", type=bool,
                             help="test mode", default=False)
+    parser.add_argument("-g", "--gpu", type==bool,
+    default=False)
     args = parser.parse_args()
 
     print("Loading options...")
@@ -44,7 +46,10 @@ def main():
         torch.backends.cudnn.benchmark = True
 
     #Create the model.
-    model = nn.DataParallel(LipRead(options).cuda())
+    if args.gpu:
+        model = nn.DataParallel(LipRead(options).cuda())
+    else:
+        model = LipRead(options).cuda()
     print('lr : ', options['training']['learning_rate'])
     print('weight_decay : ', options['training']['weight_decay'])
     optimizer = optim.Adam(
@@ -59,8 +64,10 @@ def main():
                     milestones = options['training']['schedule'],
                     gamma = options['training']['lr_decay']
                 )
-
-    criterion = model.loss()
+    if args.gpu:
+        criterion = model.module.loss()
+    else:
+        criterion = model.loss()
 
     if not os.path.isdir(os.path.join(options["general"]["save_path"], options['name'])):
         os.mkdir(os.path.join(options["general"]["save_path"], options['name']))
@@ -121,7 +128,8 @@ def main():
         with torch.no_grad():
             print("Starting testing...")
             count = 0
-            validator_function = model.validator_function()
+
+            validator_function = model.module.validator_function if args.gpu else model.validator_function()
 
             for i_batch, sample_batched in enumerate(test_dataloader):
                 input = sample_batched[0]
@@ -172,7 +180,7 @@ def main():
                     loss = criterion(outputs, labels, dot, dot_labels)
                 else:
                     loss = criterion(outputs, labels)
-                count += model.validator_function()(outputs, labels)
+                count += model.module.validator_function if args.gpu else model.validator_function()
                 count_bs += labels.shape[0]
                 
                 running_loss += loss.item()
@@ -208,7 +216,7 @@ def main():
             if(options["validation"]["validate"]):
                 print("Starting validation...")
                 count = 0
-                validator_function = model.validator_function()
+                validator_function = model.module.validator_function if args.gpu else model.validator_function()
 
                 for i_batch, sample_batched in enumerate(val_dataloader):
                     if options['model']['seperate']:
