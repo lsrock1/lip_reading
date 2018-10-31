@@ -97,7 +97,6 @@ class LipRead(nn.Module):
                 self.zip1[1](key).transpose(-2, -1)),
                 dim=-1)
         result = torch.matmul(attn, self.zip1[2](query))
-        print(result.size())
         # zip -> bs 29 112 (height -> 1)
         # attn bs 29 112(q) 112(k)
         attn = F.softmax(
@@ -105,5 +104,6 @@ class LipRead(nn.Module):
                 self.zip2[0](query.transpose(-2, -1)),
                 self.zip2[1](key.transpose(-2, -1)).transpose(-2, -1)),
                 dim=-1)
+        print(torch.matmul(self.zip2[2](result), attn.transpose(-2, -1)).size())
         return torch.matmul(self.zip2[2](result), attn.transpose(-2, -1)).view(bs, 1, length, h, h)
 
