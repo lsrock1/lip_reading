@@ -33,7 +33,7 @@ def main():
                             help="start epoch if reload", default=1)
     parser.add_argument("-t", "--test", type=bool,
                             help="test mode", default=False)
-    parser.add_argument("-g", "--gpu", type==bool,
+    parser.add_argument("-g", "--gpu", type=bool,
     default=False)
     args = parser.parse_args()
 
