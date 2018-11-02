@@ -43,13 +43,13 @@ def _validate(x, labels):
 class LSTMBackend(nn.Module):
     def __init__(self, options):
         super(LSTMBackend, self).__init__()
-        self.lstm = nn.LSTM(input_size=options["model"]["input_dim"] + options['model']['seperate_dim'],
-                                hidden_size=options["model"]["hidden_dim"] + options['model']['seperate_dim'],
+        self.lstm = nn.LSTM(input_size=options["model"]["input_dim"],
+                                hidden_size=options["model"]["hidden_dim"],
                                 num_layers=options["model"]["num_lstm"],
                                 batch_first=True,
                                 bidirectional=True)
         self.fc = nn.Linear(
-            (options["model"]["hidden_dim"] + options['model']['seperate_dim']) * 2, options["model"]["num_class"])
+            (options["model"]["hidden_dim"], options["model"]["num_class"])
         self.loss = NLLSequenceLoss()
         self.validator = _validate
 

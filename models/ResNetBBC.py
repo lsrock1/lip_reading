@@ -59,7 +59,7 @@ def conv3x3(in_planes, out_planes, stride=1):
 class BasicBlock(nn.Module):
     expansion = 1
 
-    def __init__(self, inplanes, planes, stride=1, downsample=None):
+    def __init__(self, inplanes, planes, stride=1, downsample=None, attention=False):
         super(BasicBlock, self).__init__()
         self.conv1 = conv3x3(inplanes, planes, stride)
         self.bn1 = nn.BatchNorm2d(planes)
@@ -68,8 +68,12 @@ class BasicBlock(nn.Module):
         self.bn2 = nn.BatchNorm2d(planes)
         self.downsample = downsample
         self.stride = stride
+        if attention:
+            self.attn = RCAttention(planes * 4, inplanes, stride)
+        else:
+            self.attn = None
 
-    def forward(self, x):
+    def forward(self, x, att=None):
         residual = x
 
         out = self.conv1(x)
@@ -82,16 +86,19 @@ class BasicBlock(nn.Module):
         if self.downsample is not None:
             residual = self.downsample(x)
 
+        if not self.attn:
+            out, att = self.attn(out, att)
+
         out += residual
         out = self.relu(out)
 
-        return out
+        return out, att
 
 
 class Bottleneck(nn.Module):
     expansion = 4
 
-    def __init__(self, inplanes, planes, stride=1, downsample=None):
+    def __init__(self, inplanes, planes, stride=1, downsample=None, attention=False):
         super(Bottleneck, self).__init__()
         self.conv1 = nn.Conv2d(inplanes, planes, kernel_size=1, bias=False)
         self.bn1 = nn.BatchNorm2d(planes)
@@ -103,8 +110,12 @@ class Bottleneck(nn.Module):
         self.relu = nn.ReLU(inplace=True)
         self.downsample = downsample
         self.stride = stride
+        if attention:
+            self.attn = RCAttention(planes * 4, inplanes, stride)
+        else:
+            self.attn = None
 
-    def forward(self, x):
+    def forward(self, x, att=None):
         residual = x
 
         out = self.conv1(x)
@@ -121,22 +132,19 @@ class Bottleneck(nn.Module):
         if self.downsample is not None:
             residual = self.downsample(x)
 
+        if not self.attn:
+            out, att = self.attn(out, att)
+
         out += residual
         out = self.relu(out)
 
-        return out
-
+        return out, att
 
 class ResNet(nn.Module):
 
     def __init__(self, block, layers, num_classes=1000):
         self.inplanes = 64
         super(ResNet, self).__init__()
-        self.conv1 = nn.Conv2d(3, 64, kernel_size=7, stride=2, padding=3,
-                               bias=False)
-        self.bn1 = nn.BatchNorm2d(64)
-        self.relu = nn.ReLU(inplace=True)
-        self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
         self.layer1 = self._make_layer(block, 64, layers[0])
         self.layer2 = self._make_layer(block, 128, layers[1], stride=2)
         self.layer3 = self._make_layer(block, 256, layers[2], stride=2)
@@ -170,12 +178,12 @@ class ResNet(nn.Module):
 
         return nn.Sequential(*layers)
 
-    def forward(self, x):
+    def forward(self, x, attn=None):
 
-        x = self.layer1(x)
-        x = self.layer2(x)
-        x = self.layer3(x)
-        x = self.layer4(x)
+        x, att = self.layer1(x, att)
+        x, att = self.layer2(x, att)
+        x, att = self.layer3(x, att)
+        x, _ = self.layer4(x, att)
 
         x = self.avgpool(x)
         x = x.view(x.size(0), -1)
@@ -250,31 +258,48 @@ class ResNetBBC(nn.Module):
         self.batch_size = options["input"]["batch_size"]
         self.resnetModel = resnet34(False, num_classes=options["model"]["input_dim"])
         self.input_dim = options['model']['input_dim']
-        self.landmarkloss = options['training']['landmarkloss']
         
-        if self.landmarkloss:
-            self.regressor = nn.Sequential(
-                nn.Linear(self.input_dim, self.input_dim*2),
-                nn.ReLU()
-            )
-            self.fc = nn.Sequential(
-                nn.Conv2d(29, 29, kernel_size=(1, 3)),
-                nn.BatchNorm2d(29),
-                nn.ReLU(),
-                nn.Conv2d(29, 29, kernel_size=(1, 3)),
-                nn.BatchNorm2d(29),
-                nn.ReLU(),
-                nn.Conv2d(29, 29, kernel_size=(1, 3), stride=(1, 2)),
-                nn.ReLU(),
-                nn.Conv2d(29, 29, kernel_size=(1, 5), stride=(1, 2)),
-                nn.AdaptiveAvgPool2d((2, 20)),
-                nn.Tanh()
-            )
     def forward(self, x):
         x = x.transpose(1, 2).contiguous().view(-1, 64, 28, 28)
         x = self.resnetModel(x)
         x = x.view(self.batch_size, -1, self.input_dim)
-        if self.landmarkloss and self.training:
-            reg = self.fc(self.regressor(x).view(self.batch_size, -1, 2, self.input_dim)).transpose(2,3).contiguous()
-            return x, reg
         return x
+
+
+class RCAttention(nn.Module):
+    def __init__(self, channel, inchannel, stride):
+        self.attn = nn.ModuleList(
+            [nn.Sequential(nn.Conv2d(channel, channel, kernel_size=1), nn.ReLU()) for i in range(4)]
+        )
+        self.resize = nn.Sequential(
+            nn.Conv2d(inchannel, channel, stride=stride, padding=1, bias=False),
+            nn.BatchNorm2d(channel),
+            nn.ReLU()
+        )
+
+    def forward(self, x, att):
+        att = self.resize(att)
+        bs, c, h, _ = x.size()
+        # bs 29 112 112
+        # height
+        # zip -> bs 29 112 112
+        # query: bs 29 112(h) 112(w) * bs 29 112(w) 112(h) ->
+        # bs 29 112(h) 112(energy[h]) * bs 29 112(h) 112(w)
+        query = self.attn[0](x)
+        key = self.attn[1](att)
+        value = self.attn[2](x)
+        attn1 = F.softmax(
+            torch.matmul(
+                query,
+                key.transpose(-2, -1)),
+                dim=-1)
+        # zip -> bs 29 112 112
+        # key: bs 29 112(w) 112(h) * query: bs 29 112(h) 112(w)
+        # bs 29 112(h) 112(w) * bs 29 112(energy[w]) 112(w)
+        attn2 = F.softmax(
+            torch.matmul(
+                key.transpose(-2, -1),
+                query),
+                dim=-1)
+        return self.attn[3](torch.matmul(torch.matmul(attn1, value), attn2)).view(bs, -1, h, h), att
+

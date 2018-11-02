@@ -33,18 +33,6 @@ class LipRead(nn.Module):
             )
         else:
             self.embedding = None
-
-        if options['model']['seperate'] == 'attention':
-            self.zip1 = nn.ModuleList(
-                [nn.Sequential(nn.Linear(112, 56), nn.ReLU(), nn.Linear(56, 1)) for i in range(2)] +
-                [nn.Conv2d(29, 29, kernel_size=1)]
-            )
-            self.zip2 = nn.ModuleList(
-                [nn.Sequential(nn.Linear(112, 56), nn.ReLU(), nn.Linear(56, 1)) for i in range(2)] +
-                [nn.Conv2d(29, 29, kernel_size=1)]
-            )
-        else:
-            self.zip1 = None
         #function to initialize the weights and biases of each module. Matches the
         #classname with a regular expression to determine the type of the module, then
         #initializes the weights for it.
@@ -62,8 +50,7 @@ class LipRead(nn.Module):
         self.apply(weights_init)
 
     def forward(self, x, landmark=None):
-        if self.zip1:
-            x = self.attention(x, landmark)
+        
         if self.embedding:
             landmark = self.embedding(landmark.view(landmark.size(0), 29, -1))
         if self.model:
@@ -84,26 +71,3 @@ class LipRead(nn.Module):
 
     def validator_function(self):
         return self.lstm.validator
-
-    def attention(self, query, key, value=None):
-        bs, c, length, h, _ = query.size()
-        # bs 29 112 112
-        # height
-        # zip -> bs 29 112 (width -> 1)
-        query = query.squeeze(1)
-        key = key.squeeze(1)
-        attn = F.softmax(
-            torch.matmul(
-                self.zip1[0](query),
-                self.zip1[1](key).transpose(-2, -1)),
-                dim=-1)
-        result = torch.matmul(attn, self.zip1[2](query))
-        # zip -> bs 29 112 (height -> 1)
-        # attn bs 29 112(q) 112(k)
-        attn = F.softmax(
-            torch.matmul(
-                self.zip2[0](query.transpose(-2, -1)),
-                self.zip2[1](key.transpose(-2, -1)).transpose(-2, -1)),
-                dim=-1)
-        return torch.matmul(self.zip2[2](result), attn.transpose(-2, -1)).view(bs, 1, length, h, h)
-

@@ -21,9 +21,7 @@ model:
   hidden_dim: 256
   num_class: 500
   num_lstm: 2
-  seperate_dim: 0
   seperate: attention
-  landmarkonly: false
 
 training:
   train: true
@@ -41,7 +39,6 @@ training:
   - 8
   - 10
   lr_decay: 0.5
-  landmarkloss: false
 
 validation:
   validate: true
