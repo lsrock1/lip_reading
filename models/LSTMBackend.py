@@ -49,7 +49,7 @@ class LSTMBackend(nn.Module):
                                 batch_first=True,
                                 bidirectional=True)
         self.fc = nn.Linear(
-            options["model"]["hidden_dim"], options["model"]["num_class"])
+            options["model"]["hidden_dim"]*2, options["model"]["num_class"])
         self.loss = NLLSequenceLoss()
         self.validator = _validate
 
