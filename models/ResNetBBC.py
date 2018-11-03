@@ -179,7 +179,7 @@ class ResNet(nn.Module):
 
         return nn.Sequential(*layers)
 
-    def forward(self, x, attn=None):
+    def forward(self, x, att=None):
 
         x, att = self.layer1(x, att)
         x, att = self.layer2(x, att)
