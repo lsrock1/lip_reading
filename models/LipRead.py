@@ -11,26 +11,10 @@ from .LSTMBackend import LSTMBackend
 class LipRead(nn.Module):
     def __init__(self, options):
         super(LipRead, self).__init__()
-        self.landmarkloss = options['training']['landmarkloss']
         self.frontend = ConvFrontend(options)
-        if options['model']['front'] == 'DENSENET':
-            self.model = Densenet(options)
-            self.resnet = None
-        else:
-            self.resnet = ResNetBBC(options)
-            self.model = None
+        self.resnet = ResNetBBC(options)
+        self.model = None
         self.lstm = LSTMBackend(options)
-        if options['model']['seperate'] == 'cord':
-            self.embedding = nn.Sequential(
-                nn.Linear(40, 64),
-                nn.BatchNorm1d(29),
-                nn.ReLU(),
-                nn.Linear(64, 128),
-                nn.BatchNorm1d(29),
-                nn.ReLU()
-            )
-        else:
-            self.embedding = None
         #function to initialize the weights and biases of each module. Matches the
         #classname with a regular expression to determine the type of the module, then
         #initializes the weights for it.
@@ -48,19 +32,8 @@ class LipRead(nn.Module):
         self.apply(weights_init)
 
     def forward(self, x, landmark=None):
-        
-        if self.embedding:
-            landmark = self.embedding(landmark.view(landmark.size(0), 29, -1))
-        if self.model:
-            x = self.model(self.frontend(x))
-        else:
-            x = self.resnet(self.frontend(x))
-        if self.landmarkloss and self.training:
-            x, dot = x
-            x = self.lstm(x)
-            return x, dot
-        if self.embedding:
-            x = torch.cat([x, landmark], dim=2)
+        x, attn = self.frontend(x, landmark)
+        x = self.resnet(x, attn)
         x = self.lstm(x)
         return x
 
