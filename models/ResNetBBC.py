@@ -193,17 +193,17 @@ class ResNet(nn.Module):
             landmark = self.r1.resize(landmark)
         x, _ = self.layer1(x)
         if self.r1:
-            x, landmark = self.r1(x, landmark)
+            x = self.r1(x, landmark)
         if self.r2:
             landmark = self.r2.resize(landmark)
         x, _ = self.layer2(x)
         if self.r2:
-            x, landmark = self.r2(x, landmark)
+            x = self.r2(x, landmark)
         if self.r3:
             landmark = self.r3.resize(landmark)
         x, _ = self.layer3(x)
         if self.r3:
-            x, _ = self.r3(x, landmark)
+            x = self.r3(x, landmark)
         del _
         x, _ = self.layer4(x)
 

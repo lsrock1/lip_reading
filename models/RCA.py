@@ -44,4 +44,4 @@ class RCAttention(nn.Module):
                 key.transpose(-2, -1),
                 query),
                 dim=-1)
-        return self.attn[3](torch.matmul(torch.matmul(attn1, value), attn2)).view(bs, -1, h, h), att
+        return self.attn[3](torch.matmul(torch.matmul(attn1, value), attn2)).view(bs, -1, h, h)
