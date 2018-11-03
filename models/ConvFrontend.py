@@ -13,7 +13,7 @@ class ConvFrontend(nn.Module):
             dim += 1
         if options['model']['seperate'] == 'attention':
             dim -= 1
-            self.attn = RCAttention(64, 1, 4)
+            self.attn = RCAttention(64, 1, 4, 8)
         else:
             self.attn = None
         self.conv = nn.Conv3d(dim, 64, (5,7,7), stride=(1,2,2), padding=(2,3,3))
@@ -22,8 +22,10 @@ class ConvFrontend(nn.Module):
 
     def forward(self, input, landmark=None):
         #return self.conv(input)
+        # [32, 64, 29, 28, 28]
         output = self.pool(F.relu(self.norm(self.conv(input))))
-        print(output.size())
         if self.attn:
-            output, _ = self.attn(output, landmark)
-        return output
+            output, attn = self.attn(output.transpose(1, 2).view(-1, 64, 28, 28), landmark.view(-1, 112, 112).unsqueeze(1))
+            return output, attn
+        else:
+            return output
