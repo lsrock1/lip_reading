@@ -179,7 +179,7 @@ class ResNet(nn.Module):
         for i in range(1, blocks):
             layers.append(block(self.inplanes, planes, attention=self.attn))
 
-        return nn.Sequential(*layers)
+        return nn.AS(*layers)
 
     def forward(self, x, att=None):
 
@@ -310,3 +310,8 @@ class RCAttention(nn.Module):
                 dim=-1)
         return self.attn[3](torch.matmul(torch.matmul(attn1, value), attn2)).view(bs, -1, h, h), att
 
+class AS(nn.Sequential):
+    def forward(self, x, landmark):
+        for module in self._modules.values():
+            input, landmark = module(input, landmark)
+        return input, landmark
