@@ -283,7 +283,7 @@ class ResNetBBC(nn.Module):
 
 
 class AS(nn.Sequential):
-    def forward(self, input, landmark):
+    def forward(self, input, landmark=None):
         for module in self._modules.values():
             input, landmark = module(input, landmark)
         return input, landmark
