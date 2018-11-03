@@ -188,17 +188,17 @@ class ResNet(nn.Module):
 
         return AS(*layers)
 
-    def forward(self, x, att=None):
+    def forward(self, x, landmark=None):
 
         x, _ = self.layer1(x)
         if self.r1:
-            x, attn = self.r1(x, attn)
+            x, attn = self.r1(x, landmark)
         x, _ = self.layer2(x)
         if self.r2:
-            x, attn = self.r2(x, attn)
+            x, attn = self.r2(x, landmark)
         x, _ = self.layer3(x)
         if self.r3:
-            x, attn = self.r3(x, attn)
+            x, attn = self.r3(x, landmark)
         x, _ = self.layer4(x)
 
         x = self.avgpool(x)
