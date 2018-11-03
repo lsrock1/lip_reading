@@ -7,7 +7,6 @@ import re
 from .ConvFrontend import ConvFrontend
 from .ResNetBBC import ResNetBBC
 from .LSTMBackend import LSTMBackend
-from .Densenet import Densenet
 
 class LipRead(nn.Module):
     def __init__(self, options):
