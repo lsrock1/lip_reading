@@ -78,7 +78,6 @@ class BasicBlock(nn.Module):
 
     def forward(self, x, att=None):
         residual = x
-        print(att)
         out = self.conv1(x)
         out = self.bn1(out)
         out = self.relu(out)
@@ -190,16 +189,22 @@ class ResNet(nn.Module):
         return AS(*layers)
 
     def forward(self, x, landmark=None):
-
+        if self.r1:
+            landmark = self.r1.resize(landmark)
         x, _ = self.layer1(x)
         if self.r1:
             x, landmark = self.r1(x, landmark)
+        if self.r2:
+            landmark = self.r2.resize(landmark)
         x, _ = self.layer2(x)
         if self.r2:
             x, landmark = self.r2(x, landmark)
+        if self.r3:
+            landmark = self.r3.resize(landmark)
         x, _ = self.layer3(x)
         if self.r3:
             x, _ = self.r3(x, landmark)
+        del _
         x, _ = self.layer4(x)
 
         x = self.avgpool(x)

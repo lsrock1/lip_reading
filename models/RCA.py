@@ -18,8 +18,10 @@ class RCAttention(nn.Module):
             nn.ReLU()
         )
 
+    def resize(self, x):
+        return self.resize(x)
+
     def forward(self, x, att):
-        att = self.resize(att)
         bs, c, h, _ = x.size()
         # bs 29 112 112
         # height
