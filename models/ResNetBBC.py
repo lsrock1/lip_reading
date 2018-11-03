@@ -183,10 +183,10 @@ class ResNet(nn.Module):
 
     def forward(self, x, att=None):
 
-        x, att = self.layer1(x, att=att)
-        x, att = self.layer2(x, att=att)
-        x, att = self.layer3(x, att=att)
-        x, _ = self.layer4(x, att=att)
+        x, att = self.layer1(x, att)
+        x, att = self.layer2(x, att)
+        x, att = self.layer3(x, att)
+        x, _ = self.layer4(x, att)
 
         x = self.avgpool(x)
         x = x.view(x.size(0), -1)
