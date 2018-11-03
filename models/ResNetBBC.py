@@ -32,7 +32,8 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import torch.nn as nn
-import torch
+from .RCA import RCAttention
+from .Cbam import CBAM
 import math
 import torch.nn.functional as F
 import torch.utils.model_zoo as model_zoo
@@ -69,8 +70,8 @@ class BasicBlock(nn.Module):
         self.bn2 = nn.BatchNorm2d(planes)
         self.downsample = downsample
         self.stride = stride
-        if attention:
-            self.attn = RCAttention(planes * 4, inplanes, stride)
+        if attention == 'cbam':
+            self.attn = CBAM(inplanes)
         else:
             self.attn = None
 
@@ -111,8 +112,8 @@ class Bottleneck(nn.Module):
         self.relu = nn.ReLU(inplace=True)
         self.downsample = downsample
         self.stride = stride
-        if attention:
-            self.attn = RCAttention(planes * 4, inplanes, stride)
+        if attention == 'cbam':
+            self.attn = CBAM(planes*4, inplanes, stride)
         else:
             self.attn = None
 
@@ -155,6 +156,12 @@ class ResNet(nn.Module):
         self.fc = nn.Linear(512 * block.expansion, num_classes)
         self.bn2 = nn.BatchNorm1d(num_classes)
         
+        if attention == 'rca':
+            self.r1 = RCAttention(64*block.expansion, 64, 1)
+            self.r2 = RCAttention(128*block.expansion, 64*block.expansion, 2)
+            self.r3 = RCAttention(256*block.expansion, 128*block.expansion, 2)
+        else:
+            self.r1, self.r2, self.r3 = None, None, None
 
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
@@ -183,10 +190,16 @@ class ResNet(nn.Module):
 
     def forward(self, x, att=None):
 
-        x, att = self.layer1(x, att)
-        x, att = self.layer2(x, att)
-        x, att = self.layer3(x, att)
-        x, _ = self.layer4(x, att)
+        x, _ = self.layer1(x)
+        if self.r1:
+            x, attn = self.r1(x, attn)
+        x, _ = self.layer2(x)
+        if self.r2:
+            x, attn = self.r2(x, attn)
+        x, _ = self.layer3(x)
+        if self.r3:
+            x, attn = self.r3(x, attn)
+        x, _ = self.layer4(x)
 
         x = self.avgpool(x)
         x = x.view(x.size(0), -1)
@@ -268,47 +281,6 @@ class ResNetBBC(nn.Module):
         x = x.view(self.batch_size, -1, self.input_dim)
         return x
 
-
-class RCAttention(nn.Module):
-    def __init__(self, channel, inchannel, stride, kernel_size=3, padding=1):
-        super(RCAttention, self).__init__()
-        self.attn = nn.ModuleList(
-            [nn.Sequential(
-                nn.Conv2d(channel, channel, kernel_size=1), 
-                nn.ReLU()
-                ) for i in range(4)]
-        )
-        self.resize = nn.Sequential(
-            nn.Conv2d(inchannel, channel, kernel_size=kernel_size, stride=stride, padding=padding, bias=False),
-            nn.BatchNorm2d(channel),
-            nn.ReLU()
-        )
-
-    def forward(self, x, att):
-        att = self.resize(att)
-        bs, c, h, _ = x.size()
-        # bs 29 112 112
-        # height
-        # zip -> bs 29 112 112
-        # query: bs 29 112(h) 112(w) * bs 29 112(w) 112(h) ->
-        # bs 29 112(h) 112(energy[h]) * bs 29 112(h) 112(w)
-        query = self.attn[0](x)
-        key = self.attn[1](att)
-        value = self.attn[2](x)
-        attn1 = F.softmax(
-            torch.matmul(
-                query,
-                key.transpose(-2, -1)),
-                dim=-1)
-        # zip -> bs 29 112 112
-        # key: bs 29 112(w) 112(h) * query: bs 29 112(h) 112(w)
-        # bs 29 112(h) 112(w) * bs 29 112(energy[w]) 112(w)
-        attn2 = F.softmax(
-            torch.matmul(
-                key.transpose(-2, -1),
-                query),
-                dim=-1)
-        return self.attn[3](torch.matmul(torch.matmul(attn1, value), attn2)).view(bs, -1, h, h), att
 
 class AS(nn.Sequential):
     def forward(self, input, landmark):

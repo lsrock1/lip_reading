@@ -1,4 +1,4 @@
-name: attention_qkv
+name: attention_bn_rca
 general: 
   usecudnn: true
   usecudnnbenchmark: true
@@ -20,7 +20,7 @@ model:
   hidden_dim: 256
   num_class: 500
   num_lstm: 2
-  seperate: attention
+  seperate: rca
 
 training:
   train: true

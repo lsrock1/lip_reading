@@ -11,7 +11,7 @@ class ConvFrontend(nn.Module):
         dim = 1
         if options['model']['landmark']:
             dim += 1
-        if options['model']['seperate'] == 'attention':
+        if options['model']['seperate'] == 'rca':
             dim -= 1
             self.attn = RCAttention(64, 1, 4, 8, 2)
         else:
