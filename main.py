@@ -149,7 +149,7 @@ def main():
             print("Starting training...")
             for i_batch, sample_batched in enumerate(train_dataloader):
                 optimizer.zero_grad()
-                if options['training']['landmarkloss'] or options['model']['seperate']:
+                if options['model']['seperate']:
                     x = sample_batched[0].cuda()
                     labels = sample_batched[1].cuda()
                     dot_labels = sample_batched[2].float().cuda()
@@ -160,11 +160,7 @@ def main():
                     outputs = model(x)
                 else:
                     outputs = model(x, dot_labels)
-                if options['training']['landmarkloss']:
-                    outputs, dot = outputs
-                    loss = criterion(outputs, labels, dot, dot_labels)
-                else:
-                    loss = criterion(outputs, labels)
+                loss = criterion(outputs, labels)
                 count += model.validator_function()(outputs, labels)
                 count_bs += labels.shape[0]
                 
