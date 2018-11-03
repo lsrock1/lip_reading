@@ -268,8 +268,12 @@ class ResNetBBC(nn.Module):
 
 class RCAttention(nn.Module):
     def __init__(self, channel, inchannel, stride):
+        super(RCAttention, self).__init__()
         self.attn = nn.ModuleList(
-            [nn.Sequential(nn.Conv2d(channel, channel, kernel_size=1), nn.ReLU()) for i in range(4)]
+            [nn.Sequential(
+                nn.Conv2d(channel, channel, kernel_size=1), 
+                nn.ReLU()
+                ) for i in range(4)]
         )
         self.resize = nn.Sequential(
             nn.Conv2d(inchannel, channel, stride=stride, padding=1, bias=False),
