@@ -1,5 +1,7 @@
 import torch
 from torch import nn
+import torch.nn.functional as F
+
 
 class RCAttention(nn.Module):
     def __init__(self, channel, inchannel, stride, kernel_size=3, padding=1):
