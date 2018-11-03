@@ -48,7 +48,7 @@ class LandVideo:
                 for dot in frame:
                     channel[0, index, :, :] += make_gaussian((120, 120), center=(int(dot[0]/2) if int(dot[0]/2) < 120 else 119, int(dot[1]/2) if int(dot[1]/2) < 120 else 119))
                     #channel[0, index, int(dot[1]/2) if int(dot[1]/2) < 120 else 119, int(dot[0]/2) if int(dot[0]/2) < 120 else 119] = 255
-            elif self.seperate == 'attention':
+            if self.seperate == 'attention':
                 return data, channel.clip(min=0)
             else:
                 data = np.concatenate([data/255, channel.clip(min=0)], axis=0)
