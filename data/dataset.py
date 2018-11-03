@@ -48,13 +48,13 @@ class LandVideo:
                 for dot in frame:
                     channel[0, index, :, :] += make_gaussian((120, 120), center=(int(dot[0]/2) if int(dot[0]/2) < 120 else 119, int(dot[1]/2) if int(dot[1]/2) < 120 else 119))
                     #channel[0, index, int(dot[1]/2) if int(dot[1]/2) < 120 else 119, int(dot[0]/2) if int(dot[0]/2) < 120 else 119] = 255
-            if self.seperate == 'attention':
+            if self.seperate:
                 return data, channel.clip(min=0)
             else:
                 data = np.concatenate([data/255, channel.clip(min=0)], axis=0)
-        if self.seperate:
-            landmark_dir = self.video.getFile(key).split('.mpg')[0] + '/origin.npy'
-            return data, torch.from_numpy(np.load(landmark_dir))
+        # if self.seperate:
+        #     landmark_dir = self.video.getFile(key).split('.mpg')[0] + '/origin.npy'
+        #     return data, torch.from_numpy(np.load(landmark_dir))
         return data
 
     def __len__(self):
