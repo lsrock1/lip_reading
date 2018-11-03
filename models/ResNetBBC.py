@@ -78,7 +78,7 @@ class BasicBlock(nn.Module):
 
     def forward(self, x, att=None):
         residual = x
-
+        print(att)
         out = self.conv1(x)
         out = self.bn1(out)
         out = self.relu(out)
@@ -197,10 +197,9 @@ class ResNet(nn.Module):
         x, _ = self.layer2(x)
         if self.r2:
             x, landmark = self.r2(x, landmark)
-        landmark = landmark.cpu()
         x, _ = self.layer3(x)
         if self.r3:
-            x, _ = self.r3(x, landmark.cuda())
+            x, _ = self.r3(x, landmark)
         x, _ = self.layer4(x)
 
         x = self.avgpool(x)
