@@ -25,6 +25,7 @@ class ConvFrontend(nn.Module):
         # [32, 64, 29, 28, 28]
         output = self.pool(F.relu(self.norm(self.conv(input))))
         if self.attn:
+            landmark = self.attn.resize(landmark)
             output, landmark = self.attn(
                 output.transpose(1, 2).contiguous().view(-1, 64, 28, 28), 
                 landmark.view(-1, 112, 112).unsqueeze(1))
