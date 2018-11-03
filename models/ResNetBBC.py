@@ -88,7 +88,7 @@ class BasicBlock(nn.Module):
         if self.downsample is not None:
             residual = self.downsample(x)
 
-        if not self.attn:
+        if self.attn:
             out, att = self.attn(out, att)
 
         out += residual
@@ -134,7 +134,7 @@ class Bottleneck(nn.Module):
         if self.downsample is not None:
             residual = self.downsample(x)
 
-        if not self.attn:
+        if self.attn:
             out, att = self.attn(out, att)
 
         out += residual
