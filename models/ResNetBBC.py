@@ -198,7 +198,7 @@ class ResNet(nn.Module):
             x, landmark = self.r2(x, landmark)
         x, _ = self.layer3(x)
         if self.r3:
-            x, landmark = self.r3(x, landmark)
+            x, _ = self.r3(x, landmark)
         x, _ = self.layer4(x)
 
         x = self.avgpool(x)
