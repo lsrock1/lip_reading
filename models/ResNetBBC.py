@@ -32,6 +32,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import torch.nn as nn
+import torch
 import math
 import torch.nn.functional as F
 import torch.utils.model_zoo as model_zoo
