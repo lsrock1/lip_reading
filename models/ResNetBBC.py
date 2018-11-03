@@ -311,7 +311,7 @@ class RCAttention(nn.Module):
         return self.attn[3](torch.matmul(torch.matmul(attn1, value), attn2)).view(bs, -1, h, h), att
 
 class AS(nn.Sequential):
-    def forward(self, x, landmark):
+    def forward(self, input, landmark):
         for module in self._modules.values():
             input, landmark = module(input, landmark)
         return input, landmark
