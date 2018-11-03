@@ -197,10 +197,10 @@ class ResNet(nn.Module):
         x, _ = self.layer2(x)
         if self.r2:
             x, landmark = self.r2(x, landmark)
-        torch.cuda.empty_cache()
+        landmark = landmark.cpu()
         x, _ = self.layer3(x)
         if self.r3:
-            x, _ = self.r3(x, landmark)
+            x, _ = self.r3(x, landmark.cuda())
         x, _ = self.layer4(x)
 
         x = self.avgpool(x)
