@@ -12,14 +12,14 @@ class RCAttention(nn.Module):
                 nn.ReLU()
                 ) for i in range(4)]
         )
-        self.resize = nn.Sequential(
+        self.zip = nn.Sequential(
             nn.Conv2d(inchannel, channel, kernel_size=kernel_size, stride=stride, padding=padding, bias=False),
             nn.BatchNorm2d(channel),
             nn.ReLU()
         )
 
     def resize(self, x):
-        return self.resize(x)
+        return self.zip(x)
 
     def forward(self, x, att):
         bs, c, h, _ = x.size()
