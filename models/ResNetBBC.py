@@ -179,7 +179,7 @@ class ResNet(nn.Module):
         for i in range(1, blocks):
             layers.append(block(self.inplanes, planes, attention=self.attn))
 
-        return nn.AS(*layers)
+        return AS(*layers)
 
     def forward(self, x, att=None):
 
