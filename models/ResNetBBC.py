@@ -143,7 +143,7 @@ class Bottleneck(nn.Module):
 
 class ResNet(nn.Module):
 
-    def __init__(self, block, layers, num_classes=1000):
+    def __init__(self, block, layers, num_classes=1000, attention=False):
         self.inplanes = 64
         super(ResNet, self).__init__()
         self.layer1 = self._make_layer(block, 64, layers[0])
@@ -153,6 +153,7 @@ class ResNet(nn.Module):
         self.avgpool = nn.AvgPool2d(4, stride=1)
         self.fc = nn.Linear(512 * block.expansion, num_classes)
         self.bn2 = nn.BatchNorm1d(num_classes)
+        self.attn = attention
 
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
@@ -172,10 +173,10 @@ class ResNet(nn.Module):
             )
 
         layers = []
-        layers.append(block(self.inplanes, planes, stride, downsample))
+        layers.append(block(self.inplanes, planes, stride, downsample, attention=self.attn))
         self.inplanes = planes * block.expansion
         for i in range(1, blocks):
-            layers.append(block(self.inplanes, planes))
+            layers.append(block(self.inplanes, planes, attention=self.attn))
 
         return nn.Sequential(*layers)
 
@@ -257,7 +258,7 @@ class ResNetBBC(nn.Module):
     def __init__(self, options):
         super(ResNetBBC, self).__init__()
         self.batch_size = options["input"]["batch_size"]
-        self.resnetModel = resnet34(False, num_classes=options["model"]["input_dim"])
+        self.resnetModel = resnet34(False, num_classes=options["model"]["input_dim"], attention=options['model']['seperate'])
         self.input_dim = options['model']['input_dim']
         
     def forward(self, x, landmark=None):
