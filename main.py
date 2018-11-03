@@ -82,8 +82,7 @@ def main():
 
     train_dataset = LipreadingDataset(
         options["training"]["data_path"], "train", 
-        options['input']['aug'], options['model']['landmark'], 
-        options['training']['landmarkloss'], options['model']['seperate'])
+        options['input']['aug'], options['model']['landmark'], options['model']['seperate'])
     train_dataloader = DataLoader(
                         train_dataset,
                         batch_size=options["input"]["batch_size"],
@@ -92,8 +91,7 @@ def main():
                         drop_last=True
                     )
     val_dataset = LipreadingDataset(options['validation']['data_path'],
-                                    "val", False, options['model']['landmark'],
-                                    False, options['model']['seperate'])
+                                    "val", False, options['model']['landmark'], options['model']['seperate'])
     val_dataloader = DataLoader(val_dataset,
                                 batch_size=options["input"]["batch_size"],
                                 shuffle=options["input"]["shuffle"],
@@ -104,8 +102,7 @@ def main():
     stats_frequency = options["training"]["stats_frequency"]
     if args.test:
         test_dataset = LipreadingDataset(options['validation']['data_path'],
-                                        "test", False, options['model']['landmark'], 
-                                        False, options['model']['seperate'])
+                                        "test", False, options['model']['landmark'], options['model']['seperate'])
         test_dataloader = DataLoader(
             test_dataset,
             batch_size=options["input"]["batch_size"],
