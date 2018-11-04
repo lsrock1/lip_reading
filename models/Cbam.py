@@ -35,6 +35,8 @@ class ChannelGate(nn.Module):
             )
         self.pool_types = pool_types
     def forward(self, x, landmark):
+        if not landmark:
+            landmark = x
         channel_att_sum = None
         for pool_type in self.pool_types:
             if pool_type=='avg':
@@ -76,6 +78,8 @@ class SpatialGate(nn.Module):
         self.compress = ChannelPool()
         self.spatial = BasicConv(2, 1, kernel_size, stride=1, padding=(kernel_size-1) // 2, relu=False)
     def forward(self, x, landmark):
+        if not landmark:
+            landmark = x 
         x_compress = self.compress(landmark)
         x_out = self.spatial(x_compress)
         scale = F.sigmoid(x_out) # broadcasting
@@ -93,8 +97,9 @@ class CBAM(nn.Module):
         )
         if not no_spatial:
             self.SpatialGate = SpatialGate()
-    def forward(self, x, landmark):
-        landmark = self.resize(landmark)
+    def forward(self, x, landmark=None):
+        if landmark:
+            landmark = self.resize(landmark)
         x_out = self.ChannelGate(x, landmark)
         if not self.no_spatial:
             x_out = self.SpatialGate(x_out, landmark)

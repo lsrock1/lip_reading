@@ -10,7 +10,7 @@ class RCAttention(nn.Module):
             [nn.Sequential(
                 nn.Conv2d(channel, channel, kernel_size=1), 
                 nn.ReLU()
-                ) for i in range(4)]
+                ) for i in range(3)]
         )
         self.zip = nn.Sequential(
             nn.Conv2d(inchannel, channel, kernel_size=kernel_size, stride=stride, padding=padding, bias=False),
@@ -42,4 +42,4 @@ class RCAttention(nn.Module):
                 key.transpose(-2, -1),
                 query),
                 dim=-1)
-        return self.attn[3](torch.matmul(torch.matmul(attn1, value), attn2)).view(bs, -1, h, h), att
+        return torch.matmul(torch.matmul(attn1, value), attn2).view(bs, -1, h, h), att
