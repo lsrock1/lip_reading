@@ -72,7 +72,7 @@ class BasicBlock(nn.Module):
         self.downsample = downsample
         self.stride = stride
         if attention == 'cbam':
-            self.attn = CBAM(planes*4, inplanes, stride)
+            self.attn = CBAM(planes, inplanes, stride)
         else:
             self.attn = None
 
