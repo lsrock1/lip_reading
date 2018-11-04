@@ -28,15 +28,9 @@ class ConvFrontend(nn.Module):
         #return self.conv(input)
         # [32, 64, 29, 28, 28]
         output = self.pool(F.relu(self.norm(self.conv(input))))
-        if self.attn and isinstance(self.attn, RCAttention):
-            landmark = self.attn.resize(landmark.view(-1, 112, 112).unsqueeze(1))
+        if self.attn:
             output = self.attn(
-                output.transpose(1, 2).contiguous().view(-1, 64, 28, 28), landmark)
-            return output, landmark
-        elif self.attn and isinstance(self.attn, CBAM):
-            output, landmark = self.attn(
-                output.transpose(1, 2).contiguous().view(-1, 64, 28, 28),
-                landmark.view(-1, 112, 112).unsqueeze(1))
+                output.transpose(1, 2).contiguous().view(-1, 64, 28, 28), landmark.view(-1, 112, 112).unsqueeze(1))
             return output, landmark
         else:
             return output

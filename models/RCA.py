@@ -18,10 +18,8 @@ class RCAttention(nn.Module):
             nn.ReLU()
         )
 
-    def resize(self, x):
-        return self.zip(x)
-
     def forward(self, x, att):
+        att = self.zip(att)
         bs, c, h, _ = x.size()
         # bs 29 112 112
         # height
@@ -44,4 +42,4 @@ class RCAttention(nn.Module):
                 key.transpose(-2, -1),
                 query),
                 dim=-1)
-        return self.attn[3](torch.matmul(torch.matmul(attn1, value), attn2)).view(bs, -1, h, h)
+        return self.attn[3](torch.matmul(torch.matmul(attn1, value), attn2)).view(bs, -1, h, h), att
