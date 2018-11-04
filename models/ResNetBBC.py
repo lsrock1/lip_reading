@@ -184,8 +184,7 @@ class ResNet(nn.Module):
         layers.append(block(self.inplanes, planes, stride, downsample, attention=self.attn))
         self.inplanes = planes * block.expansion
         for i in range(1, blocks):
-            print(self.attn if i != blocks-1 else False)
-            layers.append(block(self.inplanes, planes, attention=self.attn if i != blocks-1 else False))
+            layers.append(block(self.inplanes, planes, attention=self.attn if planes !=512 else False))
 
         return AS(*layers)
 
