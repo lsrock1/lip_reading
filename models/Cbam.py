@@ -84,7 +84,7 @@ class SpatialGate(nn.Module):
 class CBAM(nn.Module):
     def __init__(self, channel, gate_channels, stride, kernel_size=3, padding=1, reduction_ratio=16, pool_types=['avg', 'max'], no_spatial=False):
         super(CBAM, self).__init__()
-        self.ChannelGate = ChannelGate(gate_channels, reduction_ratio, pool_types)
+        self.ChannelGate = ChannelGate(channel, reduction_ratio, pool_types)
         self.no_spatial = no_spatial
         self.resize = nn.Sequential(
             nn.Conv2d(gate_channels, channel, kernel_size=kernel_size, stride=stride, padding=padding, bias=False),
