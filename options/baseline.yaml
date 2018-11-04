@@ -37,7 +37,7 @@ training:
   - 6
   - 8
   - 10
-  lr_decay: 0.1
+  lr_decay: 0.5
   landmarkloss: true
 
 validation:

@@ -79,7 +79,7 @@ class SpatialGate(nn.Module):
         self.spatial = BasicConv(2, 1, kernel_size, stride=1, padding=(kernel_size-1) // 2, relu=False)
     def forward(self, x, landmark):
         if not landmark:
-            landmark = x 
+            landmark = x
         x_compress = self.compress(landmark)
         x_out = self.spatial(x_compress)
         scale = F.sigmoid(x_out) # broadcasting
