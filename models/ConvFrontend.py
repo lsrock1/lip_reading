@@ -31,6 +31,4 @@ class ConvFrontend(nn.Module):
         if self.attn:
             output, landmark = self.attn(
                 output.transpose(1, 2).contiguous().view(-1, 64, 28, 28), landmark.view(-1, 112, 112).unsqueeze(1))
-            return output, landmark
-        else:
-            return output
+        return output, landmark
