@@ -71,7 +71,7 @@ class BasicBlock(nn.Module):
         self.bn2 = nn.BatchNorm2d(planes)
         self.downsample = downsample
         self.stride = stride
-        if attention == 'cbam':
+        if attention and attention.startswith('cbam'):
             self.attn = CBAM(planes, inplanes, stride)
         else:
             self.attn = None
@@ -112,7 +112,7 @@ class Bottleneck(nn.Module):
         self.relu = nn.ReLU(inplace=True)
         self.downsample = downsample
         self.stride = stride
-        if attention == 'cbam':
+        if attention and attention.startswith('cbam'):
             self.attn = CBAM(planes*4, inplanes, stride)
         else:
             self.attn = None

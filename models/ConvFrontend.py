@@ -15,7 +15,7 @@ class ConvFrontend(nn.Module):
         if options['model']['seperate'] == 'rca':
             dim -= 1
             self.attn = RCAttention(64, 1, 4, 8, 2)
-        elif options['model']['seperate'] == 'cbam':
+        elif options['model']['seperate'] and options['model']['seperate'].startswith('cbam'):
             dim -= 1
             self.attn = CBAM(64, 1, 4, 8, 2)
         else:
@@ -29,6 +29,8 @@ class ConvFrontend(nn.Module):
         # [32, 64, 29, 28, 28]
         output = self.pool(F.relu(self.norm(self.conv(input))))
         if self.attn:
+            if landmark:
+                landmark = landmark.view(-1, 112, 112).unsqueeze(1)
             output, landmark = self.attn(
-                output.transpose(1, 2).contiguous().view(-1, 64, 28, 28), landmark.view(-1, 112, 112).unsqueeze(1))
+                output.transpose(1, 2).contiguous().view(-1, 64, 28, 28), landmark)
         return output, landmark
