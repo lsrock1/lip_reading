@@ -94,8 +94,6 @@ class CBAM(nn.Module):
         if not no_spatial:
             self.SpatialGate = SpatialGate()
     def forward(self, x, landmark):
-        print('x :', x.size())
-        print('att :', landmark.size())
         landmark = self.resize(landmark)
         x_out = self.ChannelGate(x, landmark)
         if not self.no_spatial:
