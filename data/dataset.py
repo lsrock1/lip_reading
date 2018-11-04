@@ -9,14 +9,14 @@ import numpy as np
 
 class LipreadingDataset(Dataset):
     """BBC Lip Reading dataset."""
-    def __init__(self, directory, data_type, aug=True, landmark=False, seperate=False):
+    def __init__(self, directory, data_type, aug=True, landmark=False, landmark_seperate=False):
         self.file_list = sorted(glob(os.path.join(directory, '*', data_type, '*.mpg')))
         print('{} set: {}'.format(data_type, len(self.file_list)))
         self.label_list = getLabelFromFile(self.file_list)
         self.file_list = LandVideo(Video(self.file_list), data_type, landmark, seperate)
         self.labelToInt = labelToDict(self.label_list)
         self.aug = aug
-        self.seperate = seperate
+        self.landmark_seperate = landmark_seperate
 
     def __len__(self):
         return len(self.file_list)
@@ -26,29 +26,29 @@ class LipreadingDataset(Dataset):
         data = self.file_list[idx]
         label = self.label_list[idx]
         #temporalvolume = bbc(data[0] if self.landmarkloss or self.seperate else data, self.aug)
-        temporalvolume = data[0][:, :, 4:116, 4:116] if self.seperate else data[:, :, 4:116, 4:116]
-        if self.seperate:
+        temporalvolume = data[0][:, :, 4:116, 4:116] if self.landmark_seperate else data[:, :, 4:116, 4:116]
+        if self.landmark_seperate:
             return torch.tensor(temporalvolume).float(), self.labelToInt[label], data[1][:, :, 4:116, 4:116]
         return torch.tensor(temporalvolume).float(), self.labelToInt[label]
 
 
 class LandVideo:
-    def __init__(self, video, data_type, isLandmark = False, seperate=False):
+    def __init__(self, video, data_type, landmark = False, landmark_seperate=False):
         self.video = video
-        self.isLandmark = isLandmark
+        self.landmark = landmark
         self.data_type = data_type
-        self.seperate = seperate
+        self.landmark_seperate = landmark_seperate
 
     def __getitem__(self, key):
         data = self.video[key]
-        if self.isLandmark:
+        if self.landmark:
             landmark_dir = self.video.getFile(key).split('.mpg')[0] + '/origin.npy'
             channel = np.zeros((1, data.shape[1], data.shape[2], data.shape[3]), dtype=np.float64)
             for index, frame in enumerate(np.load(landmark_dir)):
                 for dot in frame:
                     channel[0, index, :, :] += make_gaussian((120, 120), center=(int(dot[0]/2) if int(dot[0]/2) < 120 else 119, int(dot[1]/2) if int(dot[1]/2) < 120 else 119))
                     #channel[0, index, int(dot[1]/2) if int(dot[1]/2) < 120 else 119, int(dot[0]/2) if int(dot[0]/2) < 120 else 119] = 255
-            if self.seperate:
+            if self.landmark_seperate:
                 return data, channel.clip(min=0)
             else:
                 data = np.concatenate([data/255, channel.clip(min=0)], axis=0)

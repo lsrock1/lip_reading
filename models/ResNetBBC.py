@@ -274,7 +274,7 @@ class ResNetBBC(nn.Module):
     def __init__(self, options):
         super(ResNetBBC, self).__init__()
         self.batch_size = options["input"]["batch_size"]
-        self.resnetModel = resnet34(False, num_classes=options["model"]["input_dim"], attention=options['model']['seperate'])
+        self.resnetModel = resnet34(False, num_classes=options["model"]["input_dim"], attention=options['model']['attention'])
         self.input_dim = options['model']['input_dim']
         
     def forward(self, x, landmark=None):

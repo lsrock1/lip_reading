@@ -82,27 +82,37 @@ def main():
 
     train_dataset = LipreadingDataset(
         options["training"]["data_path"], "train", 
-        options['input']['aug'], options['model']['landmark'], options['model']['seperate'])
+        options['input']['aug'], 
+        options['input']['landmark'], 
+        options['input']['landmark_seperate'])
     train_dataloader = DataLoader(
-                        train_dataset,
-                        batch_size=options["input"]["batch_size"],
-                        shuffle=options["input"]["shuffle"],
-                        num_workers=options["input"]["num_worker"],
-                        drop_last=True
-                    )
-    val_dataset = LipreadingDataset(options['validation']['data_path'],
-                                    "val", False, options['model']['landmark'], options['model']['seperate'])
-    val_dataloader = DataLoader(val_dataset,
-                                batch_size=options["input"]["batch_size"],
-                                shuffle=options["input"]["shuffle"],
-                                num_workers=options["input"]["num_worker"],
-                                drop_last=True
-                            )
+        train_dataset,
+        batch_size=options["input"]["batch_size"],
+        shuffle=options["input"]["shuffle"],
+        num_workers=options["input"]["num_worker"],
+        drop_last=True
+        )
+    val_dataset = LipreadingDataset(
+        options['validation']['data_path'], "val", 
+        False, 
+        options['input']['landmark'], 
+        options['input']['landmark_seperate'])
+    val_dataloader = DataLoader(
+        val_dataset,
+        batch_size=options["input"]["batch_size"],
+        shuffle=options["input"]["shuffle"],
+        num_workers=options["input"]["num_worker"],
+        drop_last=True
+        )
     batch_size = options["input"]["batch_size"]
     stats_frequency = options["training"]["stats_frequency"]
     if args.test:
-        test_dataset = LipreadingDataset(options['validation']['data_path'],
-                                        "test", False, options['model']['landmark'], options['model']['seperate'])
+        test_dataset = LipreadingDataset(
+            options['validation']['data_path'], "test", 
+            False, 
+            options['input']['landmark'], 
+            options['input']['landmark_seperate']
+            )
         test_dataloader = DataLoader(
             test_dataset,
             batch_size=options["input"]["batch_size"],
@@ -133,7 +143,6 @@ def main():
             # with open(os.path.join('./', options['name']+'.txt'), "a") as outputfile:
             #     outputfile.write("\ncorrect count: {}, total count: {} accuracy: {}" .format(count, len(test_dataset), accuracy ))
             return
-    
 
 
     for epoch in range(options["training"]["start_epoch"], options["training"]["max_epoch"]):
@@ -149,14 +158,14 @@ def main():
             print("Starting training...")
             for i_batch, sample_batched in enumerate(train_dataloader):
                 optimizer.zero_grad()
-                if options['model']['seperate']:
+                if options['input']['landmark_seperate']:
                     x = sample_batched[0].cuda()
                     labels = sample_batched[1].cuda()
                     dot_labels = sample_batched[2].float().cuda()
                 else:
                     x = sample_batched[0].cuda()
                     labels = sample_batched[1].cuda()
-                if not options['model']['seperate']:
+                if not options['input']['landmark_seperate']:
                     outputs = model(x)
                 else:
                     outputs = model(x, dot_labels)
@@ -200,14 +209,14 @@ def main():
                 validator_function = model.validator_function()
 
                 for i_batch, sample_batched in enumerate(val_dataloader):
-                    if options['model']['seperate']:
+                    if options['input']['landmark_seperate']:
                         x = sample_batched[0].cuda()
                         labels = sample_batched[1].cuda()
                         dot_labels = sample_batched[2].float().cuda()
                     else:
                         x = sample_batched[0].cuda()
                         labels = sample_batched[1].cuda()
-                    if not options['model']['seperate']:
+                    if not options['input']['landmark_seperate']:
                         outputs = model(x)
                     else:
                         outputs = model(x, dot_labels)

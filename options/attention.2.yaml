@@ -20,7 +20,7 @@ model:
   hidden_dim: 256
   num_class: 500
   num_lstm: 2
-  seperate: cbam_lmk
+  attention: cbam_lmk
 
 training:
   train: true

@@ -11,16 +11,18 @@ input:
   num_worker: 16
   shuffle: true
   aug: false
+  landmark: false
+  landmark_seperate: false
+
 
 model:
-  landmark: true
   type: LSTM
   front: RESNET
   input_dim: 256
   hidden_dim: 256
   num_class: 500
   num_lstm: 2
-  seperate: cbam
+  attention: cbam
 
 training:
   train: true
