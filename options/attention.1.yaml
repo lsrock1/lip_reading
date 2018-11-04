@@ -7,8 +7,8 @@ general:
   save_path: ./save
 
 input: 
-  batch_size: 24
-  num_worker: 24
+  batch_size: 16
+  num_worker: 16
   shuffle: true
   aug: false
 
@@ -27,7 +27,7 @@ training:
   max_epoch: 15
   start_epoch: 0
   stats_frequency: 50
-  data_path: /home/lsrock125/lrw_result
+  data_path: /home/deepuser/lrw_result
   learning_rate: 0.0003
   momentum: 0.
   weight_decay: 0.
@@ -41,6 +41,6 @@ training:
 
 validation:
   validate: true
-  data_path: /home/lsrock125/lrw_result
+  data_path: /home/deepuser/lrw_result
   save_accuracy: true
   accuracy_path: ./
