@@ -88,7 +88,7 @@ class BasicBlock(nn.Module):
         if self.downsample is not None:
             residual = self.downsample(x)
 
-        if self.attn and att:
+        if self.attn:
             out, att = self.attn(out, att)
 
         out += residual
@@ -134,7 +134,7 @@ class Bottleneck(nn.Module):
         if self.downsample is not None:
             residual = self.downsample(x)
 
-        if self.attn and att:
+        if self.attn:
             out, att = self.attn(out, att)
 
         out += residual
@@ -184,7 +184,7 @@ class ResNet(nn.Module):
         layers.append(block(self.inplanes, planes, stride, downsample, attention=self.attn))
         self.inplanes = planes * block.expansion
         for i in range(1, blocks):
-            layers.append(block(self.inplanes, planes, attention=self.attn))
+            layers.append(block(self.inplanes, planes, attention=self.attn if i != blocks-1 else False))
 
         return AS(*layers)
 
