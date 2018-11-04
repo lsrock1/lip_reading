@@ -12,6 +12,7 @@ input:
   shuffle: true
   aug: false
   landmark: false
+  landmark_seperate: false
 
 model:
   type: LSTM
