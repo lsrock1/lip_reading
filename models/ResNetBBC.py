@@ -189,15 +189,15 @@ class ResNet(nn.Module):
         return AS(*layers)
 
     def forward(self, x, landmark=None):
-        x, attn = self.layer1(x, landmark if self.attn else False)
+        x, attn = self.layer1(x, landmark if self.attn == 'cbam' else False)
         if self.r1:
             x = self.r1(x, landmark)
 
-        x, attn = self.layer2(x, attn if self.attn else False)
+        x, attn = self.layer2(x, attn if self.attn == 'cbam' else False)
         if self.r2:
             x = self.r2(x, landmark)
-            
-        x, _ = self.layer3(x, attn if self.attn else False)
+
+        x, _ = self.layer3(x, attn if self.attn == 'cbam' else False)
         if self.r3:
             x = self.r3(x, landmark)
         del _
