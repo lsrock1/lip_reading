@@ -9,7 +9,8 @@ from .Cbam import CBAM
 class ConvFrontend(nn.Module):
     def __init__(self, options):
         super(ConvFrontend, self).__init__()
-        if options['model']['attention'] and options['model']['attention'].startswith('cbam'):
+        self.attention = options['model']['attention']
+        if self.attention and self.attention.startswith('cbam'):
             self.attn = CBAM(64, 1, 4, 8, 2)
         else:
             self.attn = None
@@ -22,7 +23,7 @@ class ConvFrontend(nn.Module):
         # [32, 64, 29, 28, 28]
         output = self.pool(F.relu(self.norm(self.conv(input))))
         if self.attn:
-            if landmark:
+            if self.attention == 'cbam_lmk':
                 landmark = landmark.view(-1, 112, 112).unsqueeze(1)
             output, landmark = self.attn(
                 output.transpose(1, 2).contiguous().view(-1, 64, 28, 28), landmark)
