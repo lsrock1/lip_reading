@@ -118,6 +118,7 @@ class Bottleneck(nn.Module):
             self.attn = None
 
     def forward(self, x, att=None):
+        print(attn.size())
         residual = x
 
         out = self.conv1(x)
