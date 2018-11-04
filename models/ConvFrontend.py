@@ -2,7 +2,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.nn.init as init
-from .ResNetBBC import RCAttention
+from RCA import RCAttention
+from Cbam import CBAM
 
 
 class ConvFrontend(nn.Module):
@@ -14,6 +15,9 @@ class ConvFrontend(nn.Module):
         if options['model']['seperate'] == 'rca':
             dim -= 1
             self.attn = RCAttention(64, 1, 4, 8, 2)
+        elif options['model']['seperate'] == 'cbam':
+            dim -= 1
+            self.attn = CBAM(64, 1, 4, 8, 2)
         else:
             self.attn = None
         self.conv = nn.Conv3d(dim, 64, (5,7,7), stride=(1,2,2), padding=(2,3,3))

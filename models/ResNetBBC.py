@@ -191,17 +191,17 @@ class ResNet(nn.Module):
     def forward(self, x, landmark=None):
         if self.r1:
             landmark = self.r1.resize(landmark)
-        x, _ = self.layer1(x)
+        x, attn = self.layer1(x, landmark if self.attn else False)
         if self.r1:
             x = self.r1(x, landmark)
         if self.r2:
             landmark = self.r2.resize(landmark)
-        x, _ = self.layer2(x)
+        x, attn = self.layer2(x, attn if self.attn else False)
         if self.r2:
             x = self.r2(x, landmark)
         if self.r3:
             landmark = self.r3.resize(landmark)
-        x, _ = self.layer3(x)
+        x, _ = self.layer3(x, attn if self.attn else False)
         if self.r3:
             x = self.r3(x, landmark)
         del _
