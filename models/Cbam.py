@@ -98,4 +98,4 @@ class CBAM(nn.Module):
         x_out = self.ChannelGate(x, landmark)
         if not self.no_spatial:
             x_out = self.SpatialGate(x_out, landmark)
-        return x_out
+        return x_out, landmark
