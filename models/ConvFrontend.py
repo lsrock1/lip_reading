@@ -2,8 +2,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.nn.init as init
-from RCA import RCAttention
-from Cbam import CBAM
+from .RCA import RCAttention
+from .Cbam import CBAM
 
 
 class ConvFrontend(nn.Module):
