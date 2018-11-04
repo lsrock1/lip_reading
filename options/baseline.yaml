@@ -11,17 +11,16 @@ input:
   num_worker: 16
   shuffle: true
   aug: false
+  landmark: false
 
 model:
-  coord: true
-  landmark: true
   type: LSTM
   front: RESNET
   input_dim: 256
   hidden_dim: 256
   num_class: 500
   num_lstm: 2
-  seperate: false
+  attention: false
 
 training:
   train: true
@@ -38,7 +37,6 @@ training:
   - 8
   - 10
   lr_decay: 0.5
-  landmarkloss: true
 
 validation:
   validate: true
