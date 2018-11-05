@@ -1,4 +1,4 @@
-name: baseline_new
+name: attention_se_lmk
 general: 
   usecudnn: true
   usecudnnbenchmark: true
@@ -7,26 +7,27 @@ general:
   save_path: ./save
 
 input: 
-  batch_size: 32
-  num_worker: 32
+  batch_size: 16
+  num_worker: 16
   shuffle: true
   aug: false
+  landmark: true
+  landmark_seperate: true
 
 model:
-  coord: false
-  landmark: false
   type: LSTM
   front: RESNET
   input_dim: 256
   hidden_dim: 256
   num_class: 500
   num_lstm: 2
+  attention: se_lmk
 
 training:
   train: true
   max_epoch: 15
   start_epoch: 0
-  stats_frequency: 5
+  stats_frequency: 50
   data_path: /home/deepuser/lrw_result
   learning_rate: 0.0003
   momentum: 0.
@@ -38,7 +39,6 @@ training:
   - 8
   - 10
   lr_decay: 0.5
-  landmarkloss: false
 
 validation:
   validate: true

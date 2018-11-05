@@ -73,6 +73,10 @@ class BasicBlock(nn.Module):
         self.stride = stride
         if attention and attention.startswith('cbam'):
             self.attn = CBAM(planes, inplanes, stride)
+        elif attention and attention.startswith('se'):
+            self.attn = CBAM(planes, inplanes, stride, no_spatial=True)
+        elif attention and attention.startswith('tcbam'):
+            self.attn = CBAM(planes, inplanes, stride, no_temporal=False)
         else:
             self.attn = None
 
@@ -114,6 +118,10 @@ class Bottleneck(nn.Module):
         self.stride = stride
         if attention and attention.startswith('cbam'):
             self.attn = CBAM(planes*4, inplanes, stride)
+        elif attention and attention.startswith('se'):
+            self.attn = CBAM(planes*4, inplanes, stride, no_spatial=True)
+        elif attention and attention.startswith('tcbam'):
+            self.attn = CBAM(planes*4, inplanes, stride, no_temporal=False)
         else:
             self.attn = None
 
@@ -181,28 +189,28 @@ class ResNet(nn.Module):
             )
 
         layers = []
-        layers.append(block(self.inplanes, planes, stride, downsample, attention=self.attn if planes !=512 else False))
+        layers.append(block(self.inplanes, planes, stride, downsample, attention=self.attn))
         self.inplanes = planes * block.expansion
         for i in range(1, blocks):
-            layers.append(block(self.inplanes, planes, attention=self.attn if planes !=512 else False))
+            layers.append(block(self.inplanes, planes, attention=self.attn))
 
         return AS(*layers)
 
     def forward(self, x, landmark=None):
-        x, attn = self.layer1(x, landmark if self.attn == 'cbam_lmk' else False)
+        x, attn = self.layer1(x, landmark if self.attn and self.attn.endswith('lmk') else False)
         if self.r1:
             x, landmark = self.r1(x, landmark)
 
-        x, attn = self.layer2(x, attn if self.attn == 'cbam_lmk' else False)
+        x, attn = self.layer2(x, attn if self.attn and self.attn.endswith('lmk') else False)
         if self.r2:
             x, landmark = self.r2(x, landmark)
 
-        x, _ = self.layer3(x, attn if self.attn == 'cbam_lmk' else False)
+        x, attn = self.layer3(x, attn if self.attn and self.attn.endswith('lmk') else False)
         if self.r3:
             x, _ = self.r3(x, landmark)
         del _
-        x, _ = self.layer4(x)
-
+        x, _ = self.layer4(x, attn if self.attn and self.attn.endswith('lmk') else False)
+        del _
         x = self.avgpool(x)
         x = x.view(x.size(0), -1)
         x = self.fc(x)

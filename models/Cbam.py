@@ -77,6 +77,7 @@ class SpatialGate(nn.Module):
         kernel_size = 7
         self.compress = ChannelPool()
         self.spatial = BasicConv(2, 1, kernel_size, stride=1, padding=(kernel_size-1) // 2, relu=False)
+    
     def forward(self, x, landmark):
         if not landmark:
             landmark = x
@@ -85,11 +86,48 @@ class SpatialGate(nn.Module):
         scale = F.sigmoid(x_out) # broadcasting
         return x * scale
 
+class TemporalGate(nn.Module):
+    def __init__(self, gate_temporal=29, linear_size=5, pool_types=['avg', 'max']):
+        super(TemporalGate, self).__init__()
+        self.gate_channels = gate_temporal
+        self.mlp = nn.Sequential(
+            Flatten(),
+            nn.Linear(gate_temporal, linear_size),
+            nn.ReLU(),
+            nn.Linear(linear_size, gate_temporal)
+            )
+        self.pool_types = pool_types
+
+    def forward(self, x, landmark):
+        if not landmark:
+            landmark = x
+        bs, c, h, _ = x.size(0)
+        x = x.view(bs/29, 29, c, h, w)
+        landmark = landmark.view(bs/29, 29, -1)
+        temporal_att_sum = None
+        for pool_type in self.pool_types:
+            if pool_type=='avg':
+                avg_pool = F.avg_pool1d(landmark, kernel_size=landmark.size(2))
+                channel_att_raw = self.mlp(avg_pool)
+            elif pool_type=='max':
+                max_pool = F.max_pool1d(landmark, kernel_size=landmark.size(2))
+                channel_att_raw = self.mlp(max_pool)
+
+            if channel_att_sum is None:
+                channel_att_sum = channel_att_raw
+            else:
+                channel_att_sum = channel_att_sum + channel_att_raw
+        #bs, 29, 1, 1, 1
+        scale = F.sigmoid(channel_att_sum).unsqueeze(2).unsqueeze(3).unsqueeze(4).expand_as(x)
+        return (x * scale).view(-1, c, h, w)
+
+
 class CBAM(nn.Module):
-    def __init__(self, channel, in_channel, stride, kernel_size=3, padding=1, reduction_ratio=16, pool_types=['avg', 'max'], no_spatial=False):
+    def __init__(self, channel, in_channel, stride, kernel_size=3, padding=1, reduction_ratio=16, pool_types=['avg', 'max'], no_spatial=False, no_temporal=True):
         super(CBAM, self).__init__()
         self.ChannelGate = ChannelGate(channel, reduction_ratio, pool_types)
         self.no_spatial = no_spatial
+        self.no_temporal = no_temporal
         self.resize = nn.Sequential(
             nn.Conv2d(in_channel, channel, kernel_size=kernel_size, stride=stride, padding=padding, bias=False),
             nn.BatchNorm2d(channel),
@@ -97,10 +135,14 @@ class CBAM(nn.Module):
         )
         if not no_spatial:
             self.SpatialGate = SpatialGate()
+        if not no_temporal:
+            self.temporalGate = TemporalGate()
     def forward(self, x, landmark=None):
         if landmark:
             landmark = self.resize(landmark)
         x_out = self.ChannelGate(x, landmark)
         if not self.no_spatial:
             x_out = self.SpatialGate(x_out, landmark)
+        if not self.no_temporal:
+            x_out = self.temporalGate(x_out, landmark)
         return x_out, landmark

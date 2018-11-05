@@ -12,6 +12,10 @@ class ConvFrontend(nn.Module):
         self.attention = options['model']['attention']
         if self.attention and self.attention.startswith('cbam'):
             self.attn = CBAM(64, 1, 4, 8, 2)
+        elif self.attention and self.attention.startswith('se'):
+            self.attn = CBAM(64, 1, 4, 8, 2, no_spatial=True)
+        elif self.attention and self.attention.startswith('tcbam'):
+            self.attn = CBAM(64, 1, 4, 8, 2, no_temporal=False)
         else:
             self.attn = None
         self.conv = nn.Conv3d(1, 64, (5,7,7), stride=(1,2,2), padding=(2,3,3))
@@ -23,7 +27,7 @@ class ConvFrontend(nn.Module):
         # [32, 64, 29, 28, 28]
         output = self.pool(F.relu(self.norm(self.conv(input))))
         if self.attn:
-            if self.attention == 'cbam_lmk':
+            if self.attention and cbam.endswith('cbam_lmk'):
                 landmark = landmark.view(-1, 112, 112).unsqueeze(1)
             output, landmark = self.attn(
                 output.transpose(1, 2).contiguous().view(-1, 64, 28, 28), landmark)

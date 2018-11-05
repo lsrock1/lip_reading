@@ -1,4 +1,4 @@
-name: attention_bn_rca
+name: attention_cbam_5
 general: 
   usecudnn: true
   usecudnnbenchmark: true
@@ -11,16 +11,17 @@ input:
   num_worker: 16
   shuffle: true
   aug: false
+  landmark: true
+  landmark_seperate: true
 
 model:
-  landmark: true
   type: LSTM
   front: RESNET
   input_dim: 256
   hidden_dim: 256
   num_class: 500
   num_lstm: 2
-  seperate: rca
+  attention: cbam_lmk
 
 training:
   train: true

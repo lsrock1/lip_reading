@@ -1,4 +1,4 @@
-name: attention_cbam_org
+name: attention_bn_rca
 general: 
   usecudnn: true
   usecudnnbenchmark: true
@@ -11,9 +11,8 @@ input:
   num_worker: 16
   shuffle: true
   aug: false
-  landmark: false
-  landmark_seperate: false
-
+  landmark: true
+  landmark_seperate: true
 
 model:
   type: LSTM
@@ -22,7 +21,7 @@ model:
   hidden_dim: 256
   num_class: 500
   num_lstm: 2
-  attention: cbam
+  attention: rca
 
 training:
   train: true
