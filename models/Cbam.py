@@ -35,7 +35,7 @@ class ChannelGate(nn.Module):
             )
         self.pool_types = pool_types
     def forward(self, x, landmark):
-        if not landmark:
+        if isinstance(landmark, bool):
             landmark = x
         channel_att_sum = None
         for pool_type in self.pool_types:
