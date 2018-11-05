@@ -196,7 +196,7 @@ class ResNet(nn.Module):
 
         return AS(*layers)
 
-    def forward(self, x, landmark=None):
+    def forward(self, x, landmark=False):
         x, attn = self.layer1(x, landmark if self.attn and self.attn.endswith('lmk') else False)
         if self.r1:
             x, landmark = self.r1(x, landmark)

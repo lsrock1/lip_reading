@@ -22,7 +22,7 @@ class ConvFrontend(nn.Module):
         self.norm = nn.BatchNorm3d(64)
         self.pool = nn.MaxPool3d((1,3,3), stride=(1,2,2), padding=(0,1,1))
 
-    def forward(self, input, landmark=None):
+    def forward(self, input, landmark=False):
         #return self.conv(input)
         # [32, 64, 29, 28, 28]
         output = self.pool(F.relu(self.norm(self.conv(input))))
