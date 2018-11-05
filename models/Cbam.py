@@ -79,7 +79,7 @@ class SpatialGate(nn.Module):
         self.spatial = BasicConv(2, 1, kernel_size, stride=1, padding=(kernel_size-1) // 2, relu=False)
     
     def forward(self, x, landmark):
-        if not landmark:
+        if isinstance(landmark, bool):
             landmark = x
         x_compress = self.compress(landmark)
         x_out = self.spatial(x_compress)
@@ -99,7 +99,7 @@ class TemporalGate(nn.Module):
         self.pool_types = pool_types
 
     def forward(self, x, landmark):
-        if not landmark:
+        if isinstance(landmark, bool):
             landmark = x
         bs, c, h, _ = x.size(0)
         x = x.view(bs/29, 29, c, h, w)
