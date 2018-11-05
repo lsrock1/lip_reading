@@ -49,7 +49,6 @@ def main():
     optimizer = optim.Adam(
                 model.parameters(),
                 lr = options['training']['learning_rate'],
-                # momentum = options['training']['momentum'],
                 weight_decay = options['training']['weight_decay']
             )
     if options['training']['schedule']:

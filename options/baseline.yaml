@@ -29,7 +29,6 @@ training:
   stats_frequency: 50
   data_path: /home/lsrock125/lrw_result
   learning_rate: 0.0003
-  momentum: 0.
   weight_decay: 0.
   schedule:
   - 2
