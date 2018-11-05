@@ -101,7 +101,7 @@ class TemporalGate(nn.Module):
     def forward(self, x, landmark):
         if isinstance(landmark, bool):
             landmark = x
-        bs, c, h, _ = x.size(0)
+        bs, c, h, _ = x.size()
         x = x.view(bs/29, 29, c, h, w)
         landmark = landmark.view(bs/29, 29, -1)
         temporal_att_sum = None
