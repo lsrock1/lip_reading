@@ -31,7 +31,7 @@ class LipRead(nn.Module):
         #Apply weight initialization to every module in the model.
         self.apply(weights_init)
 
-    def forward(self, x, landmark=None):
+    def forward(self, x, landmark=False):
         x, attn = self.frontend(x, landmark)
         x = self.resnet(x, attn)
         x = self.lstm(x)

@@ -285,7 +285,7 @@ class ResNetBBC(nn.Module):
         self.resnetModel = resnet34(False, num_classes=options["model"]["input_dim"], attention=options['model']['attention'])
         self.input_dim = options['model']['input_dim']
         
-    def forward(self, x, landmark=None):
+    def forward(self, x, landmark=False):
         x = x.transpose(1, 2).contiguous().view(-1, 64, 28, 28)
         x = self.resnetModel(x, landmark)
         x = x.view(self.batch_size, -1, self.input_dim)
