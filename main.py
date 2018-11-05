@@ -5,7 +5,6 @@ import torch.optim as optim
 from datetime import datetime, timedelta
 from data import LipreadingDataset
 from torch.utils.data import DataLoader
-from optimizer import get_optimizer
 from glob import glob
 import yaml
 import argparse
