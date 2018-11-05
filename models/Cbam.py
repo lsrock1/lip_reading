@@ -137,8 +137,8 @@ class CBAM(nn.Module):
             self.SpatialGate = SpatialGate()
         if not no_temporal:
             self.temporalGate = TemporalGate()
-    def forward(self, x, landmark=None):
-        if landmark:
+    def forward(self, x, landmark=False):
+        if not isinstance(landmark, bool):
             landmark = self.resize(landmark)
         x_out = self.ChannelGate(x, landmark)
         if not self.no_spatial:
