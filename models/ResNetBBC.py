@@ -208,7 +208,7 @@ class ResNet(nn.Module):
         x, attn = self.layer3(x, attn if self.attn and self.attn.endswith('lmk') else False)
         if self.r3:
             x, _ = self.r3(x, landmark)
-        del _
+            del _
         x, _ = self.layer4(x, attn if self.attn and self.attn.endswith('lmk') else False)
         del _
         x = self.avgpool(x)
