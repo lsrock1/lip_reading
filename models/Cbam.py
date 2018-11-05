@@ -102,8 +102,8 @@ class TemporalGate(nn.Module):
         if isinstance(landmark, bool):
             landmark = x
         bs, c, h, w = x.size()
-        x = x.view(bs/29, 29, c, h, w)
-        landmark = landmark.view(bs/29, 29, -1)
+        x = x.view(int(bs/29), 29, c, h, w)
+        landmark = landmark.view(int(bs/29), 29, -1)
         temporal_att_sum = None
         for pool_type in self.pool_types:
             if pool_type=='avg':
