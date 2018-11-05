@@ -108,17 +108,17 @@ class TemporalGate(nn.Module):
         for pool_type in self.pool_types:
             if pool_type=='avg':
                 avg_pool = F.avg_pool1d(landmark, kernel_size=landmark.size(2))
-                channel_att_raw = self.mlp(avg_pool)
+                temporal_att_sum = self.mlp(avg_pool)
             elif pool_type=='max':
                 max_pool = F.max_pool1d(landmark, kernel_size=landmark.size(2))
-                channel_att_raw = self.mlp(max_pool)
+                temporal_att_sum = self.mlp(max_pool)
 
-            if channel_att_sum is None:
-                channel_att_sum = channel_att_raw
+            if temporal_att_sum is None:
+                temporal_att_sum = temporal_att_sum
             else:
-                channel_att_sum = channel_att_sum + channel_att_raw
+                temporal_att_sum = temporal_att_sum + temporal_att_sum
         #bs, 29, 1, 1, 1
-        scale = F.sigmoid(channel_att_sum).unsqueeze(2).unsqueeze(3).unsqueeze(4).expand_as(x)
+        scale = F.sigmoid(temporal_att_sum).unsqueeze(2).unsqueeze(3).unsqueeze(4).expand_as(x)
         return (x * scale).view(-1, c, h, w)
 
 
