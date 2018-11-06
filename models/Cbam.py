@@ -130,8 +130,7 @@ class CBAM(nn.Module):
         self.no_temporal = no_temporal
         self.resize = nn.Sequential(
             nn.Conv2d(in_channel, channel, kernel_size=kernel_size, stride=stride, padding=padding, bias=False),
-            nn.BatchNorm2d(channel),
-            nn.ReLU()
+            #nn.BatchNorm2d(channel),
         )
         if not no_spatial:
             self.SpatialGate = SpatialGate()
@@ -142,6 +141,7 @@ class CBAM(nn.Module):
         if not isinstance(landmark, bool):
             landmark = self.resize(landmark)
         x_out = self.ChannelGate(x, landmark)
+        landmark = F.relu(landmark)
         if not self.no_spatial:
             x_out = self.SpatialGate(x_out, landmark)
         if not self.no_temporal:
