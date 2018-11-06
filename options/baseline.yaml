@@ -27,19 +27,19 @@ training:
   train: true
   max_epoch: 15
   stats_frequency: 50
-  data_path: /home/lsrock125/lrw_result
-  learning_rate: 0.0003
-  weight_decay: 0.
+  data_path: /home/deepuser/lrw_result
+  learning_rate: 0.0006
+  weight_decay: 0.00001
   schedule:
-  - 2
-  - 4
+  - 3
   - 6
-  - 8
-  - 10
+  - 9
+  - 12
+  - 15
   lr_decay: 0.5
 
 validation:
   validate: true
-  data_path: /home/lsrock125/lrw_result
+  data_path: /home/deepuser/lrw_result
   save_accuracy: true
   accuracy_path: ./
