@@ -1,4 +1,4 @@
-name: baseline_16
+name: baseline_0.0006_0.00001
 general: 
   usecudnn: true
   usecudnnbenchmark: true
