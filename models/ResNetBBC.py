@@ -164,10 +164,10 @@ class ResNet(nn.Module):
         self.fc = nn.Linear(512 * block.expansion, num_classes)
         self.bn2 = nn.BatchNorm1d(num_classes)
         
-        if attention == 'rca':
-            self.r1 = RCAttention(64*block.expansion, 64, 1)
-            self.r2 = RCAttention(128*block.expansion, 64*block.expansion, 2)
-            self.r3 = RCAttention(256*block.expansion, 128*block.expansion, 2)
+        if attention == 'bcbam':
+            self.r1 = CBAM(64*block.expansion, 64, 1)
+            self.r2 = CBAM(128*block.expansion, 64*block.expansion, 2)
+            self.r3 = CBAM(256*block.expansion, 128*block.expansion, 2)
         else:
             self.r1, self.r2, self.r3 = None, None, None
 
