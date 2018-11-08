@@ -36,6 +36,7 @@ class ChannelGate(nn.Module):
         self.pool_types = pool_types
         self.dropout = nn.Dropout2d(0.2, inplace=True)
     def forward(self, x, landmark):
+        print(x.size(), landmark.size())
         if isinstance(landmark, bool):
             landmark = x
         channel_att_sum = None

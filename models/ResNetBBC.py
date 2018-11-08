@@ -209,9 +209,11 @@ class ResNet(nn.Module):
         return AS(*layers)
 
     def forward(self, x, landmark=False):
+        print(x.size())
         if self.fpn:
             fpn = [F.relu(self.fpn1(F.adaptive_avg_pool2d(x, (1, 1)).view(x.size(0), -1)))]
         x, attn = self.layer1(x, landmark if self.attn and self.attn.endswith('lmk') else False)
+        print(x.size())
         if self.fpn:
             fpn.append(F.relu(self.fpn2(F.adaptive_avg_pool2d(x, (1, 1)).view(x.size(0), -1))))
         if self.r1:
