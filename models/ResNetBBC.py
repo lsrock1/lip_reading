@@ -62,7 +62,7 @@ def conv3x3(in_planes, out_planes, stride=1):
 class BasicBlock(nn.Module):
     expansion = 1
 
-    def __init__(self, inplanes, planes, stride=1, downsample=None, attention=False):
+    def __init__(self, inplanes, planes, stride=1, downsample=None, attention=False, dropout=0.2):
         super(BasicBlock, self).__init__()
         self.conv1 = conv3x3(inplanes, planes, stride)
         self.bn1 = nn.BatchNorm2d(planes)
@@ -72,11 +72,11 @@ class BasicBlock(nn.Module):
         self.downsample = downsample
         self.stride = stride
         if attention and attention.startswith('cbam'):
-            self.attn = CBAM(planes, inplanes, stride)
+            self.attn = CBAM(planes*4, inplanes, stride, dropout=dropout)
         elif attention and attention.startswith('se'):
-            self.attn = CBAM(planes, inplanes, stride, no_spatial=True)
+            self.attn = CBAM(planes*4, inplanes, stride, no_spatial=True, dropout=dropout)
         elif attention and attention.startswith('tcbam'):
-            self.attn = CBAM(planes, inplanes, stride, no_temporal=False)
+            self.attn = CBAM(planes*4, inplanes, stride, no_temporal=False, dropout=dropout)
         else:
             self.attn = None
 
