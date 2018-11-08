@@ -34,6 +34,7 @@ class ChannelGate(nn.Module):
             nn.Linear(gate_channels // reduction_ratio, gate_channels)
             )
         self.pool_types = pool_types
+        self.dropout = nn.Dropout2d(0.2, inplace=True)
     def forward(self, x, landmark):
         if isinstance(landmark, bool):
             landmark = x
@@ -59,6 +60,7 @@ class ChannelGate(nn.Module):
                 channel_att_sum = channel_att_sum + channel_att_raw
 
         scale = F.sigmoid( channel_att_sum ).unsqueeze(2).unsqueeze(3).expand_as(x)
+        self.dropout(scale)
         return x * scale
 
 def logsumexp_2d(tensor):
@@ -75,6 +77,7 @@ class SpatialGate(nn.Module):
     def __init__(self):
         super(SpatialGate, self).__init__()
         kernel_size = 7
+        self.dropout = nn.Dropout2d(0.2, inplace=True)
         self.compress = ChannelPool()
         self.spatial = BasicConv(2, 1, kernel_size, stride=1, padding=(kernel_size-1) // 2, relu=False)
     
@@ -84,6 +87,7 @@ class SpatialGate(nn.Module):
         x_compress = self.compress(landmark)
         x_out = self.spatial(x_compress)
         scale = F.sigmoid(x_out) # broadcasting
+        self.dropout(scale)
         return x * scale
 
 class TemporalGate(nn.Module):
