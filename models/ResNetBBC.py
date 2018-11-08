@@ -72,11 +72,11 @@ class BasicBlock(nn.Module):
         self.downsample = downsample
         self.stride = stride
         if attention and attention.startswith('cbam'):
-            self.attn = CBAM(planes*4, inplanes, stride, dropout=dropout)
+            self.attn = CBAM(planes, inplanes, stride, dropout=dropout)
         elif attention and attention.startswith('se'):
-            self.attn = CBAM(planes*4, inplanes, stride, no_spatial=True, dropout=dropout)
+            self.attn = CBAM(planes, inplanes, stride, no_spatial=True, dropout=dropout)
         elif attention and attention.startswith('tcbam'):
-            self.attn = CBAM(planes*4, inplanes, stride, no_temporal=False, dropout=dropout)
+            self.attn = CBAM(planes, inplanes, stride, no_temporal=False, dropout=dropout)
         else:
             self.attn = None
 
