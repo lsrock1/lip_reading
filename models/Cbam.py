@@ -24,7 +24,7 @@ class Flatten(nn.Module):
         return x.view(x.size(0), -1)
 
 class ChannelGate(nn.Module):
-    def __init__(self, gate_channels, reduction_ratio=16, pool_types=['avg', 'max']):
+    def __init__(self, gate_channels, reduction_ratio=16, pool_types=['avg', 'max'], dropout=0.2):
         super(ChannelGate, self).__init__()
         self.gate_channels = gate_channels
         self.mlp = nn.Sequential(
@@ -34,7 +34,7 @@ class ChannelGate(nn.Module):
             nn.Linear(gate_channels // reduction_ratio, gate_channels)
             )
         self.pool_types = pool_types
-        self.dropout = nn.Dropout2d(0.2)
+        self.dropout = nn.Dropout2d(dropout)
     def forward(self, x, landmark):
         if isinstance(landmark, bool):
             landmark = x
@@ -74,10 +74,10 @@ class ChannelPool(nn.Module):
         return torch.cat((torch.max(x,1)[0].unsqueeze(1), torch.mean(x,1).unsqueeze(1)), dim=1 )
 
 class SpatialGate(nn.Module):
-    def __init__(self):
+    def __init__(self, dropout=0.2):
         super(SpatialGate, self).__init__()
         kernel_size = 7
-        self.dropout = nn.Dropout2d(0.2)
+        self.dropout = nn.Dropout2d(dropout)
         self.compress = ChannelPool()
         self.spatial = BasicConv(2, 1, kernel_size, stride=1, padding=(kernel_size-1) // 2, relu=False)
     
@@ -93,6 +93,7 @@ class SpatialGate(nn.Module):
 class TemporalGate(nn.Module):
     def __init__(self, gate_temporal=29, linear_size=5, pool_types=['avg', 'max']):
         super(TemporalGate, self).__init__()
+        self.dropout = nn.Dropout2d(0.2)
         self.gate_channels = gate_temporal
         self.mlp = nn.Sequential(
             Flatten(),
@@ -129,7 +130,7 @@ class TemporalGate(nn.Module):
 class CBAM(nn.Module):
     def __init__(self, channel, in_channel, stride, kernel_size=3, padding=1, reduction_ratio=16, pool_types=['avg', 'max'], no_spatial=False, no_temporal=True, dropout=0.2):
         super(CBAM, self).__init__()
-        self.ChannelGate = ChannelGate(channel, reduction_ratio, pool_types)
+        self.ChannelGate = ChannelGate(channel, reduction_ratio, pool_types, dropout=dropout)
         self.no_spatial = no_spatial
         self.no_temporal = no_temporal
         self.resize = nn.Sequential(
@@ -137,15 +138,16 @@ class CBAM(nn.Module):
             nn.BatchNorm2d(channel),
         )
         if not no_spatial:
-            self.SpatialGate = SpatialGate()
+            self.SpatialGate = SpatialGate(dropout=dropout)
         if not no_temporal:
-            self.temporalGate = TemporalGate()
+            self.temporalGate = TemporalGate(dropout=dropout)
             
     def forward(self, x, landmark=False):
         if not isinstance(landmark, bool):
             landmark = self.resize(landmark)
         x_out = self.ChannelGate(x, landmark)
-        landmark = F.relu(landmark)
+        if not isinstance(landmark, bool):
+            landmark = F.relu(landmark)
         if not self.no_spatial:
             x_out = self.SpatialGate(x_out, landmark)
         if not self.no_temporal:
