@@ -1,4 +1,4 @@
-name: attention_cbam_0.0006_0.00001
+name: attention_cbam_dropout
 general: 
   usecudnn: true
   usecudnnbenchmark: true
