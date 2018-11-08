@@ -34,9 +34,8 @@ class ChannelGate(nn.Module):
             nn.Linear(gate_channels // reduction_ratio, gate_channels)
             )
         self.pool_types = pool_types
-        self.dropout = nn.Dropout2d(0.2, inplace=True)
+        self.dropout = nn.Dropout2d(0.2)
     def forward(self, x, landmark):
-        print(x.size(), landmark.size())
         if isinstance(landmark, bool):
             landmark = x
         channel_att_sum = None
@@ -78,7 +77,7 @@ class SpatialGate(nn.Module):
     def __init__(self):
         super(SpatialGate, self).__init__()
         kernel_size = 7
-        self.dropout = nn.Dropout2d(0.2, inplace=True)
+        self.dropout = nn.Dropout2d(0.2)
         self.compress = ChannelPool()
         self.spatial = BasicConv(2, 1, kernel_size, stride=1, padding=(kernel_size-1) // 2, relu=False)
     
