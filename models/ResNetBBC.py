@@ -104,7 +104,7 @@ class BasicBlock(nn.Module):
 class Bottleneck(nn.Module):
     expansion = 4
 
-    def __init__(self, inplanes, planes, stride=1, downsample=None, attention=False):
+    def __init__(self, inplanes, planes, stride=1, downsample=None, attention=False, dropout=0.2):
         super(Bottleneck, self).__init__()
         self.conv1 = nn.Conv2d(inplanes, planes, kernel_size=1, bias=False)
         self.bn1 = nn.BatchNorm2d(planes)
@@ -117,11 +117,11 @@ class Bottleneck(nn.Module):
         self.downsample = downsample
         self.stride = stride
         if attention and attention.startswith('cbam'):
-            self.attn = CBAM(planes*4, inplanes, stride)
+            self.attn = CBAM(planes*4, inplanes, stride, dropout=dropout)
         elif attention and attention.startswith('se'):
-            self.attn = CBAM(planes*4, inplanes, stride, no_spatial=True)
+            self.attn = CBAM(planes*4, inplanes, stride, no_spatial=True, dropout=dropout)
         elif attention and attention.startswith('tcbam'):
-            self.attn = CBAM(planes*4, inplanes, stride, no_temporal=False)
+            self.attn = CBAM(planes*4, inplanes, stride, no_temporal=False, dropout=dropout)
         else:
             self.attn = None
 
@@ -152,11 +152,12 @@ class Bottleneck(nn.Module):
 
 class ResNet(nn.Module):
 
-    def __init__(self, block, layers, num_classes=1000, attention=False, fpn=False):
+    def __init__(self, block, layers, num_classes=1000, attention=False, fpn=False, dropout=0.2):
         self.inplanes = 64
         super(ResNet, self).__init__()
         self.fpn = fpn
         self.attn = attention
+        self.dropout = dropout
         self.layer1 = self._make_layer(block, 64, layers[0])
         self.layer2 = self._make_layer(block, 128, layers[1], stride=2)
         self.layer3 = self._make_layer(block, 256, layers[2], stride=2)
@@ -200,10 +201,10 @@ class ResNet(nn.Module):
             )
 
         layers = []
-        layers.append(block(self.inplanes, planes, stride, downsample, attention=self.attn))
+        layers.append(block(self.inplanes, planes, stride, downsample, attention=self.attn, dropout=self.dropout))
         self.inplanes = planes * block.expansion
         for i in range(1, blocks):
-            layers.append(block(self.inplanes, planes, attention=self.attn))
+            layers.append(block(self.inplanes, planes, attention=self.attn, dropout=self.dropout))
 
         return AS(*layers)
 
@@ -306,7 +307,7 @@ class ResNetBBC(nn.Module):
     def __init__(self, options):
         super(ResNetBBC, self).__init__()
         self.batch_size = options["input"]["batch_size"]
-        self.resnetModel = resnet34(False, num_classes=options["model"]["input_dim"], attention=options['model']['attention'], fpn=options['model']['fpn'])
+        self.resnetModel = resnet34(False, num_classes=options["model"]["input_dim"], attention=options['model']['attention'], fpn=options['model']['fpn'], dropout=dropout=options['model']['attention_dropout'])
         self.input_dim = options['model']['input_dim']
         
     def forward(self, x, landmark=False):

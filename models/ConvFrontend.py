@@ -11,11 +11,11 @@ class ConvFrontend(nn.Module):
         super(ConvFrontend, self).__init__()
         self.attention = options['model']['attention']
         if self.attention and self.attention.startswith('cbam'):
-            self.attn = CBAM(64, 1, 4, 8, 2)
+            self.attn = CBAM(64, 1, 4, 8, 2, dropout=options['model']['attention_dropout'])
         elif self.attention and self.attention.startswith('se'):
-            self.attn = CBAM(64, 1, 4, 8, 2, no_spatial=True)
+            self.attn = CBAM(64, 1, 4, 8, 2, no_spatial=True, dropout=options['model']['attention_dropout'])
         elif self.attention and self.attention.startswith('tcbam'):
-            self.attn = CBAM(64, 1, 4, 8, 2, no_temporal=False)
+            self.attn = CBAM(64, 1, 4, 8, 2, no_temporal=False, dropout=options['model']['attention_dropout'])
         else:
             self.attn = None
         self.conv = nn.Conv3d(1, 64, (5,7,7), stride=(1,2,2), padding=(2,3,3))

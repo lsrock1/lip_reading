@@ -22,6 +22,7 @@ model:
   num_class: 500
   num_lstm: 2
   attention: cbam_lmk
+  attention_dropout: 0.2
   fpn: false
 
 training:

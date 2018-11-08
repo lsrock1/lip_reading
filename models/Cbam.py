@@ -60,7 +60,7 @@ class ChannelGate(nn.Module):
                 channel_att_sum = channel_att_sum + channel_att_raw
 
         scale = F.sigmoid( channel_att_sum ).unsqueeze(2).unsqueeze(3).expand_as(x)
-        self.dropout(scale)
+        scale = self.dropout(scale)
         return x * scale
 
 def logsumexp_2d(tensor):
@@ -87,7 +87,7 @@ class SpatialGate(nn.Module):
         x_compress = self.compress(landmark)
         x_out = self.spatial(x_compress)
         scale = F.sigmoid(x_out) # broadcasting
-        self.dropout(scale)
+        scale = self.dropout(scale)
         return x * scale
 
 class TemporalGate(nn.Module):
@@ -127,7 +127,7 @@ class TemporalGate(nn.Module):
 
 
 class CBAM(nn.Module):
-    def __init__(self, channel, in_channel, stride, kernel_size=3, padding=1, reduction_ratio=16, pool_types=['avg', 'max'], no_spatial=False, no_temporal=True):
+    def __init__(self, channel, in_channel, stride, kernel_size=3, padding=1, reduction_ratio=16, pool_types=['avg', 'max'], no_spatial=False, no_temporal=True, dropout=0.2):
         super(CBAM, self).__init__()
         self.ChannelGate = ChannelGate(channel, reduction_ratio, pool_types)
         self.no_spatial = no_spatial
