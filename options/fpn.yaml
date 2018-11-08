@@ -28,7 +28,7 @@ training:
   train: true
   max_epoch: 15
   stats_frequency: 50
-  data_path: /home/deepuser/lrw_result
+  data_path: /home/sayduke/lrw_result
   learning_rate: 0.0006
   weight_decay: 0.000001
   schedule:
@@ -41,6 +41,6 @@ training:
 
 validation:
   validate: true
-  data_path: /home/deepuser/lrw_result
+  data_path: /home/sayduke/lrw_result
   save_accuracy: true
   accuracy_path: ./
