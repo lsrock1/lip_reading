@@ -71,7 +71,7 @@ def logsumexp_2d(tensor):
 
 class ChannelPool(nn.Module):
     def forward(self, x):
-        return torch.cat((torch.max(x,1)[0].unsqueeze(1), torch.mean(x,1).unsqueeze(1)), dim=1 )
+        return torch.cat((torch.max(x,1)[0].unsqueeze(1), torch.mean(x,1).unsqueeze(1)), dim=1)
 
 class SpatialGate(nn.Module):
     def __init__(self, dropout=0.2):
@@ -86,7 +86,7 @@ class SpatialGate(nn.Module):
             landmark = x
         x_compress = self.compress(landmark)
         x_out = self.spatial(x_compress)
-        scale = F.sigmoid(x_out) # broadcasting
+        scale = torch.sigmoid(x_out) # broadcasting
         scale = self.dropout(scale)
         return x * scale
 
@@ -123,7 +123,7 @@ class TemporalGate(nn.Module):
             else:
                 temporal_att_sum = temporal_att_sum + temporal_att_sum
         #bs, 29, 1, 1, 1
-        scale = F.sigmoid(temporal_att_sum).unsqueeze(2).unsqueeze(3).unsqueeze(4).expand_as(x)
+        scale = torch.sigmoid(temporal_att_sum).unsqueeze(2).unsqueeze(3).unsqueeze(4).expand_as(x)
         return (x * scale).view(-1, c, h, w)
 
 

@@ -1,4 +1,4 @@
-name: attention_se_org
+name: attention_se_org_dropout
 general: 
   usecudnn: true
   usecudnnbenchmark: true
@@ -22,6 +22,8 @@ model:
   num_class: 500
   num_lstm: 2
   attention: se
+  attention_dropout: 0.2
+  fpn: false
 
 training:
   train: true
@@ -29,9 +31,8 @@ training:
   start_epoch: 0
   stats_frequency: 50
   data_path: /home/deepuser/lrw_result
-  learning_rate: 0.0003
-  momentum: 0.
-  weight_decay: 0.
+  learning_rate: 0.0006
+  weight_decay: 0.000001
   schedule:
   - 2
   - 4
