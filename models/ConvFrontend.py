@@ -30,15 +30,15 @@ class ConvFrontend(nn.Module):
         self.norm = nn.BatchNorm3d(64)
         self.pool = nn.MaxPool3d((1,3,3), stride=(1,2,2), padding=(0,1,1))
 
-    def forward(self, input, landmark=False):
+    def forward(self, x, landmark=False):
         #return self.conv(input)
         # [32, 64, 29, 28, 28]
         if self.coord:
-            output = self.addCoord(output)
-        output = self.pool(F.relu(self.norm(self.conv(input))))
+            x = self.addCoord(x)
+        x = self.pool(F.relu(self.norm(self.conv(x))))
         if self.attn:
             if self.attention and self.attention.endswith('lmk'):
                 landmark = landmark.view(-1, 112, 112).unsqueeze(1)
-            output, landmark = self.attn(
-                output.transpose(1, 2).contiguous().view(-1, 64, 28, 28), landmark)
-        return output, landmark
+            x, landmark = self.attn(
+                x.transpose(1, 2).contiguous().view(-1, 64, 28, 28), landmark)
+        return x, landmark
