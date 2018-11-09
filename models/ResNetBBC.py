@@ -152,10 +152,9 @@ class Bottleneck(nn.Module):
 
 class ResNet(nn.Module):
 
-    def __init__(self, block, layers, num_classes=1000, attention=False, fpn=False, dropout=0.2):
+    def __init__(self, block, layers, num_classes=1000, attention=False, dropout=0.2):
         self.inplanes = 64
         super(ResNet, self).__init__()
-        self.fpn = fpn
         self.attn = attention
         self.dropout = dropout
         self.layer1 = self._make_layer(block, 64, layers[0])
@@ -163,17 +162,8 @@ class ResNet(nn.Module):
         self.layer3 = self._make_layer(block, 256, layers[2], stride=2)
         self.layer4 = self._make_layer(block, 512, layers[3], stride=2)
         
-        if self.fpn:
-            dim = int(512*block.expansion/4)
-            self.fpn1 = nn.Linear(64, dim)
-            self.fpn2 = nn.Linear(64*block.expansion, dim)
-            self.fpn3 = nn.Linear(128*block.expansion, dim)
-            self.fpn4 = nn.Linear(256*block.expansion, dim)
-            self.fpn5 = nn.Linear(512*block.expansion, dim)
-            self.last = nn.Linear(5*dim, num_classes)
-        else:
-            self.avgpool = nn.AvgPool2d(4, stride=1)
-            self.fc = nn.Linear(512 * block.expansion, num_classes)
+        self.avgpool = nn.AvgPool2d(4, stride=1)
+        self.fc = nn.Linear(512 * block.expansion, num_classes)
         self.bn2 = nn.BatchNorm1d(num_classes)
         
         if attention == 'bcbam':
@@ -209,36 +199,23 @@ class ResNet(nn.Module):
         return AS(*layers)
 
     def forward(self, x, landmark=False):
-        if self.fpn:
-            fpn = [F.relu(self.fpn1(F.adaptive_avg_pool2d(x, (1, 1)).view(x.size(0), -1)))]
         x, attn = self.layer1(x, landmark if self.attn and self.attn.endswith('lmk') else False)
-        if self.fpn:
-            fpn.append(F.relu(self.fpn2(F.adaptive_avg_pool2d(x, (1, 1)).view(x.size(0), -1))))
         if self.r1:
             x, landmark = self.r1(x, landmark)
 
         x, attn = self.layer2(x, attn if self.attn and self.attn.endswith('lmk') else False)
-        if self.fpn:
-            fpn.append(F.relu(self.fpn3(F.adaptive_avg_pool2d(x, (1, 1)).view(x.size(0), -1))))
         if self.r2:
             x, landmark = self.r2(x, landmark)
 
         x, attn = self.layer3(x, attn if self.attn and self.attn.endswith('lmk') else False)
-        if self.fpn:
-            fpn.append(F.relu(self.fpn4(F.adaptive_avg_pool2d(x, (1, 1)).view(x.size(0), -1))))
         if self.r3:
             x, _ = self.r3(x, landmark)
             del _
         x, _ = self.layer4(x, attn if self.attn and self.attn.endswith('lmk') else False)
-        if self.fpn:
-            fpn.append(F.relu(self.fpn5(F.adaptive_avg_pool2d(x, (1, 1)).view(x.size(0), -1))))
         del _
-        if self.fpn:
-            x = self.last(torch.cat(fpn, dim=1))
-        else:
-            x = self.avgpool(x)
-            x = x.view(x.size(0), -1)
-            x = self.fc(x)
+        x = self.avgpool(x)
+        x = x.view(x.size(0), -1)
+        x = self.fc(x)
         x = self.bn2(x)
 
         return x
@@ -307,7 +284,7 @@ class ResNetBBC(nn.Module):
     def __init__(self, options):
         super(ResNetBBC, self).__init__()
         self.batch_size = options["input"]["batch_size"]
-        self.resnetModel = resnet34(False, num_classes=options["model"]["input_dim"], attention=options['model']['attention'], fpn=options['model']['fpn'], dropout=options['model']['attention_dropout'])
+        self.resnetModel = resnet34(False, num_classes=options["model"]["input_dim"], attention=options['model']['attention'], dropout=options['model']['attention_dropout'])
         self.input_dim = options['model']['input_dim']
         
     def forward(self, x, landmark=False):

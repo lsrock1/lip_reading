@@ -1,4 +1,4 @@
-name: baseline_lmk
+name: baseline_0.0006_0.00001
 general: 
   usecudnn: true
   usecudnnbenchmark: true
@@ -11,7 +11,7 @@ input:
   num_worker: 16
   shuffle: true
   aug: false
-  landmark: true
+  landmark: false
   landmark_seperate: false
 
 model:
@@ -22,13 +22,13 @@ model:
   num_class: 500
   num_lstm: 2
   attention: false
-  coord: false
+  coord: true
 
 training:
   train: true
   max_epoch: 15
   stats_frequency: 50
-  data_path: /home/lsrock125/lrw_result
+  data_path: /home/deepuser/lrw_result
   learning_rate: 0.0006
   weight_decay: 0.0000001
   schedule:
@@ -41,6 +41,6 @@ training:
 
 validation:
   validate: true
-  data_path: /home/lsrock125/lrw_result
+  data_path: /home/deepuser/lrw_result
   save_accuracy: true
   accuracy_path: ./
