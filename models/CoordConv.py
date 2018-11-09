@@ -25,8 +25,8 @@ class AddCoords(nn.Module):
         xx_channel = xx_channel * 2 - 1
         yy_channel = yy_channel * 2 - 1
 
-        xx_channel = xx_channel.repeat(batch_size, 1, 1, 1).transpose(2, 3).cuda()
-        yy_channel = yy_channel.repeat(batch_size, 1, 1, 1).transpose(2, 3).cuda()
+        xx_channel = xx_channel.repeat(batch_size*time, 1, 1, 1).transpose(2, 3).cuda()
+        yy_channel = yy_channel.repeat(batch_size*time, 1, 1, 1).transpose(2, 3).cuda()
 
         ret = torch.cat([
             input_tensor,
