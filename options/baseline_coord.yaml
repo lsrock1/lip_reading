@@ -1,4 +1,4 @@
-name: baseline_coord
+name: baseline_coord_nodecay
 general: 
   usecudnn: true
   usecudnnbenchmark: true
@@ -31,7 +31,7 @@ training:
   stats_frequency: 50
   data_path: /home/deepuser/lrw_result
   learning_rate: 0.0006
-  weight_decay: 0.0000001
+  weight_decay: 0.
   schedule:
   - 2
   - 4
