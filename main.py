@@ -193,7 +193,8 @@ def main():
                     (epoch + 1, i_batch + 1, running_loss / stats_frequency, count/count_bs))
                     try:
                         print('lr {}, name {}'.format(optimizer.param_groups[-1]['lr'], options['name']))
-                    except:
+                    except Exception as e:
+                        print(e)
                         print('lr {}, name {}'.format(options['training']['learning_rate'], options['name']))
                     running_loss = 0.0
                     count = 0
