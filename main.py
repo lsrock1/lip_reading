@@ -43,7 +43,6 @@ def main():
 
     #Create the model.
     model = LipRead(options).cuda()
-    print(model)
     print('lr : ', options['training']['learning_rate'])
     print('weight_decay : ', options['training']['weight_decay'])
     optimizer = optim.Adam(
