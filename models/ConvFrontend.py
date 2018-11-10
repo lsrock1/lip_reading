@@ -17,7 +17,7 @@ class ConvFrontend(nn.Module):
             dim += 1
         if self.coord:
             dim += 2
-            self.addCoord = AddCoords(False)
+            self.addCoord = AddCoords()
         if self.attention and self.attention.startswith('cbam'):
             self.attn = CBAM(64, dim, 4, 8, 2, dropout=options['model']['attention_dropout'])
         elif self.attention and self.attention.startswith('se'):

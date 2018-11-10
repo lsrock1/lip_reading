@@ -3,38 +3,26 @@ import torch.nn as nn
 
 
 class AddCoords(nn.Module):
-
-    def __init__(self, with_r=False):
+    def __init__(self):
         super().__init__()
-        self.with_r = with_r
+        self.is_time_coord = False
 
-    def forward(self, input_tensor):
-        """
-        Args:
-            input_tensor: shape(batch, channel, x_dim, y_dim)
-        """
-        batch_size, _, time, x_dim, y_dim = input_tensor.size()
-        input_tensor = input_tensor.view(-1, 1, x_dim, y_dim)
+    def forward(self, x):
+        bs, _, t_dim, y_dim, x_dim = x.size()
+        x_append = torch.arange(x_dim).view(1, 1, 1, 1, -1).expand(bs, -1, t_dim, y_dim, -1)
+        y_append = torch.arange(y_dim).view(1, 1, 1, -1, 1).expand(bs, -1, t_dim, -1, x_dim)
+        x_append = (x_append / (x_dim-1)) * 2 - 1
+        y_append = (y_append / (y_dim-1)) * 2 - 1
+        t_append = []
+        if self.is_time_coord:
+            t_append = torch.arange(t_dim).view(1, 1, -1, 1, 1).expand(bs, -1, -1, y_dim, x_dim)
+            t_append = (t_append / (t_dim-1)) * 2 - 1
+            t_append = [t_append]
+        
+        if torch.cuda.is_available():
+            x_append = x_append.float().cuda()
+            y_append = y_append.float().cuda()
+            if t_append:
+                t_append = [t_append.float().cuda()]
 
-        xx_channel = torch.arange(x_dim).repeat(1, y_dim, 1)
-        yy_channel = torch.arange(y_dim).repeat(1, x_dim, 1).transpose(1, 2)
-
-        xx_channel = xx_channel.float() / (x_dim - 1)
-        yy_channel = yy_channel.float() / (y_dim - 1)
-
-        xx_channel = xx_channel * 2 - 1
-        yy_channel = yy_channel * 2 - 1
-
-        xx_channel = xx_channel.repeat(batch_size*time, 1, 1, 1).transpose(2, 3).cuda()
-        yy_channel = yy_channel.repeat(batch_size*time, 1, 1, 1).transpose(2, 3).cuda()
-
-        ret = torch.cat([
-            input_tensor,
-            xx_channel.type_as(input_tensor),
-            yy_channel.type_as(input_tensor)], dim=1)
-
-        if self.with_r:
-            rr = torch.sqrt(torch.pow(xx_channel.type_as(input_tensor) - 0.5, 2) + torch.pow(yy_channel.type_as(input_tensor) - 0.5, 2)).cuda()
-            ret = torch.cat([ret, rr], dim=1)
-
-        return ret.view(batch_size, -1, time, x_dim, y_dim)
+        return torch.cat([x , x_append, y_append] + t_append, dim=1)
