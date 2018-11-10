@@ -51,6 +51,7 @@ def main():
                 weight_decay = options['training']['weight_decay']
             )
     if options['training']['schedule'] == 'plateau':
+        plat = True
         scheduler = optim.lr_scheduler.ReduceLROnPlateau(
             optimizer,
             model='max',
@@ -61,6 +62,7 @@ def main():
             threshold_mode='abs',
         )
     else:
+        plat = False
         scheduler = optim.lr_scheduler.MultiStepLR(
                     optimizer,
                     milestones = options['training']['schedule'],
@@ -157,7 +159,7 @@ def main():
 
         model.train()
         if(options["training"]["train"]):
-            if options['training']['schedule']:
+            if options['training']['schedule'] and not plat:
                 scheduler.step(epoch)
             running_loss = 0.0
             count = 0
@@ -183,11 +185,7 @@ def main():
                 
                 running_loss += loss.item()
                 loss.backward()
-                # for p,n in model.named_parameters():
-                #     try:
-                #         print('===========\ngradient:{}\n----------\n{}'.format(p,torch.sum(n.grad)))
-                #     except:
-                #         pass
+
                 optimizer.step()
                 if(i_batch % stats_frequency == 0 and i_batch != 0):
                     
@@ -232,6 +230,8 @@ def main():
                     count += validator_function(outputs, labels)
 
                 accuracy = count / len(val_dataset)
+                if options['training']['schedule'] and plat:
+                    scheduler.step(accuracy)
                 print('correct count: {}, total count: {}, accu: {}'.format(count, len(val_dataset), accuracy))
                 with open(os.path.join('./', options['name']+'.txt'), "a") as outputfile:
                     outputfile.write("\ncorrect count: {}, total count: {} accuracy: {}" .format(count, len(val_dataset), accuracy ))
