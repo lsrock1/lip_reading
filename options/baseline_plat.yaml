@@ -1,4 +1,4 @@
-name: baseline_fpn
+name: baseline_plateu
 general: 
   usecudnn: true
   usecudnnbenchmark: true
@@ -22,25 +22,21 @@ model:
   num_class: 500
   num_lstm: 2
   attention: false
-  fpn: true
+  attention_dropout: 0.5
+  coord: false
 
 training:
   train: true
-  max_epoch: 15
+  max_epoch: 20
   stats_frequency: 50
-  data_path: /home/sayduke/lrw_result
-  learning_rate: 0.0006
-  weight_decay: 0.000001
-  schedule:
-  - 3
-  - 6
-  - 9
-  - 12
-  - 15
-  lr_decay: 0.5
+  data_path: /home/deepuser/lrw_result
+  learning_rate: 0.0001
+  weight_decay: 0.0000001
+  schedule: plateau
+  lr_decay: 0.1
 
 validation:
   validate: true
-  data_path: /home/sayduke/lrw_result
+  data_path: /home/deepuser/lrw_result
   save_accuracy: true
   accuracy_path: ./

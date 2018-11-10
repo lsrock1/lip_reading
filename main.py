@@ -50,7 +50,17 @@ def main():
                 lr = options['training']['learning_rate'],
                 weight_decay = options['training']['weight_decay']
             )
-    if options['training']['schedule']:
+    if options['training']['schedule'] == 'plateau':
+        scheduler = optim.lr_scheduler.ReduceLROnPlateau(
+            optimizer,
+            model='max',
+            factor=options['training']['lr_decay'],
+            patience=3,
+            verbose=True,
+            threshold=0.01,
+            threshold_mode='abs',
+        )
+    else:
         scheduler = optim.lr_scheduler.MultiStepLR(
                     optimizer,
                     milestones = options['training']['schedule'],
