@@ -54,7 +54,7 @@ def main():
         plat = True
         scheduler = optim.lr_scheduler.ReduceLROnPlateau(
             optimizer,
-            model='max',
+            mode='max',
             factor=options['training']['lr_decay'],
             patience=3,
             verbose=True,

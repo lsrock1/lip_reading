@@ -22,7 +22,7 @@ model:
   num_class: 500
   num_lstm: 2
   attention: false
-  attention_dropout: 0.5
+  attention_dropout: 0.2
   coord: true
 
 training:
