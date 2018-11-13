@@ -1,4 +1,4 @@
-name: attention_se_lmk_dropout
+name: attention_se_lmk_plateau
 general: 
   usecudnn: true
   usecudnnbenchmark: true
@@ -27,19 +27,14 @@ model:
 
 training:
   train: true
-  max_epoch: 15
+  max_epoch: 20
   start_epoch: 0
   stats_frequency: 50
   data_path: /home/deepuser/lrw_result
-  learning_rate: 0.0006
+  learning_rate: 0.0001
   weight_decay: 0.0000001
-  schedule:
-  - 2
-  - 4
-  - 6
-  - 8
-  - 10
-  lr_decay: 0.5
+  schedule: plateau
+  lr_decay: 0.1
 
 validation:
   validate: true

@@ -34,7 +34,7 @@ class ChannelGate(nn.Module):
             nn.Linear(gate_channels // reduction_ratio, gate_channels)
             )
         self.pool_types = pool_types
-        self.dropout = nn.Dropout2d(dropout)
+        self.dropout = nn.Dropout2d(dropout) if dropout > 0. else None
     def forward(self, x, landmark):
         if isinstance(landmark, bool):
             landmark = x
@@ -60,7 +60,8 @@ class ChannelGate(nn.Module):
                 channel_att_sum = channel_att_sum + channel_att_raw
 
         scale = torch.sigmoid(channel_att_sum).unsqueeze(2).unsqueeze(3).expand_as(x)
-        scale = self.dropout(scale)
+        if self.dropout:
+            scale = self.dropout(scale)
         return x * scale
 
 def logsumexp_2d(tensor):
@@ -77,7 +78,7 @@ class SpatialGate(nn.Module):
     def __init__(self, dropout=0.2):
         super(SpatialGate, self).__init__()
         kernel_size = 7
-        self.dropout = nn.Dropout2d(dropout)
+        self.dropout = nn.Dropout2d(dropout) if dropout > 0. else None
         self.compress = ChannelPool()
         self.spatial = BasicConv(2, 1, kernel_size, stride=1, padding=(kernel_size-1) // 2, relu=False)
     
@@ -87,7 +88,8 @@ class SpatialGate(nn.Module):
         x_compress = self.compress(landmark)
         x_out = self.spatial(x_compress)
         scale = torch.sigmoid(x_out) # broadcasting
-        scale = self.dropout(scale)
+        if self.dropout:
+            scale = self.dropout(scale)
         return x * scale
 
 class TemporalGate(nn.Module):
