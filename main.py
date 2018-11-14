@@ -31,6 +31,10 @@ def main():
                             help="start epoch if reload", default=1)
     parser.add_argument("-t", "--test", type=bool,
                             help="test mode", default=False)
+    parser.add_argument("-b", "--best", type=float,
+    help="best epoch val accuracy", default=0.)
+    parser.add_argument("-e", "--bepoch", type=int,
+    help="the number of bad epoch", default=0)
     args = parser.parse_args()
 
     print("Loading options...")
@@ -45,12 +49,19 @@ def main():
     model = LipRead(options).cuda()
     print('lr : ', options['training']['learning_rate'])
     print('weight_decay : ', options['training']['weight_decay'])
+    print('landmark : ', options['input']['landmark'])
+    print('landmark channel concat : ', not options['input']['landmark_seperate'])
+    print('coord conv : ', options['model']['coord'])
+    print('attention : ', options['model']['attention'])
     optimizer = optim.Adam(
                 model.parameters(),
                 lr = options['training']['learning_rate'],
                 weight_decay = options['training']['weight_decay']
             )
     if options['training']['schedule'] == 'plateau':
+        if args.start > 1 and args.best == 0.:
+            print("must have best accuracy")
+            raise
         plat = True
         scheduler = optim.lr_scheduler.ReduceLROnPlateau(
             optimizer,
@@ -58,9 +69,11 @@ def main():
             factor=options['training']['lr_decay'],
             patience=3,
             verbose=True,
-            threshold=0.01,
+            threshold=0.03,
             threshold_mode='abs',
         )
+        scheduler.best = args.best
+        scheduler.num_bad_epochs = args.bepoch
     else:
         plat = False
         scheduler = optim.lr_scheduler.MultiStepLR(
