@@ -38,6 +38,7 @@ def main():
     help="the number of bad epoch", default=0)
     args = parser.parse_args()
     writer = SummaryWriter()
+    writer.add_text('name', options['name'])
     print("Loading options...")
     with open(args.config, 'r') as optionsFile:
         options = yaml.load(optionsFile.read())
