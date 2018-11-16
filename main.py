@@ -5,6 +5,7 @@ import torch.optim as optim
 from datetime import datetime, timedelta
 from data import LipreadingDataset
 from torch.utils.data import DataLoader
+from tensorboardX import SummaryWriter
 from glob import glob
 import yaml
 import argparse
@@ -36,7 +37,7 @@ def main():
     parser.add_argument("-e", "--bepoch", type=int,
     help="the number of bad epoch", default=0)
     args = parser.parse_args()
-
+    writer = SummaryWriter()
     print("Loading options...")
     with open(args.config, 'r') as optionsFile:
         options = yaml.load(optionsFile.read())
@@ -204,11 +205,19 @@ def main():
                     
                     print('[%d, %5d] loss: %.8f, acc: %f' %
                     (epoch + 1, i_batch + 1, running_loss / stats_frequency, count/count_bs))
+                    writer.add_scalar('train/loss', running_loss/stats_frequency, i_batch*batch_size)
+                    writer.add_scalar('train/accuracy', count/count_bs, i_batch*batch_size)
+                    writer.add_scalar('train/true', count, i_batch*batch_size)
+                    writer.add_scalar('train/false', count_bs-count, i_batch*batch_size)
                     try:
                         print('lr {}, name {}'.format(optimizer.param_groups[-1]['lr'], options['name']))
+                        writer.add_scalar('train/lr', optimizer.param_groups[-1]['lr'], i_batch*batch_size)
                     except Exception as e:
                         print(e)
                         print('lr {}, name {}'.format(options['training']['learning_rate'], options['name']))
+                        writer.add_scalar('train/lr', options['training']['learning_rate'], i_batch*batch_size)
+                    for name, param in model.named_parameters():
+                        writer.add_histogram(name, param.clone().cpu().data.numpy(), i_batch*batch_size)
                     running_loss = 0.0
                     count = 0
                     count_bs = 0
@@ -246,6 +255,9 @@ def main():
                 accuracy = count / len(val_dataset)
                 if options['training']['schedule'] and plat:
                     scheduler.step(accuracy)
+                writer.add_scalar('val/accuracy', accuracy, epoch)
+                writer.add_scalar('val/true', count, epoch)
+                writer.add_scalar('val/false', len(val_dataset)-count, epoch)
                 print('correct count: {}, total count: {}, accu: {}'.format(count, len(val_dataset), accuracy))
                 with open(os.path.join('./', options['name']+'.txt'), "a") as outputfile:
                     outputfile.write("\ncorrect count: {}, total count: {} accuracy: {}" .format(count, len(val_dataset), accuracy ))
