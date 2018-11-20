@@ -45,13 +45,15 @@ class LandVideo:
             landmark_dir = self.video.getFile(key).split('.mpg')[0] + '/origin.npy'
             channel = np.zeros((1, data.shape[1], data.shape[2], data.shape[3]), dtype=np.float64)
             for index, frame in enumerate(np.load(landmark_dir)):
-                for dot in frame:
-                    channel[0, index, :, :] += make_gaussian((120, 120), center=(int(dot[0]/2) if int(dot[0]/2) < 120 else 119, int(dot[1]/2) if int(dot[1]/2) < 120 else 119))
+                if frame[0, 0] != 0 and frame[0, 1] != 0:
+                    for dot in frame:
+                        channel[0, index, :, :] += make_gaussian((120, 120), center=(int(dot[0]/2) if int(dot[0]/2) < 120 else 119, int(dot[1]/2) if int(dot[1]/2) < 120 else 119))
                     #channel[0, index, int(dot[1]/2) if int(dot[1]/2) < 120 else 119, int(dot[0]/2) if int(dot[0]/2) < 120 else 119] = 255
+            channel = (channel - 0.15735664013013212)/0.2322109507292421
             if self.landmark_seperate:
-                return data, channel.clip(min=0)
+                return data, channel
             else:
-                data = np.concatenate([data/255, channel.clip(min=0)], axis=0)
+                data = np.concatenate([data, channel], axis=0)
         # if self.seperate:
         #     landmark_dir = self.video.getFile(key).split('.mpg')[0] + '/origin.npy'
         #     return data, torch.from_numpy(np.load(landmark_dir))
@@ -75,14 +77,14 @@ class Video(list):
             ret, frame = cap.read()
             if ret:
                 # Our operations on the frame come here
-                gray = cv2.resize(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY), (120, 120)).reshape(-1, 1, 120, 120)
+                gray = cv2.resize(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY), (120, 120)).reshape(-1, 1, 120, 120).astype(np.float64)
                 tmp.append(gray)
                 # Display the resulting frame
                 #imshow(gray, cmap='gray')
             else:
                 break
         cap.release()
-        return np.concatenate(tmp, axis=1)
+        return (np.concatenate(tmp, axis=1)-104.35039287874869)/39.3184442790886
 
 def getLabelFromFile(file_list):
     return [i.split('/')[-1].split('_')[0] for i in file_list]

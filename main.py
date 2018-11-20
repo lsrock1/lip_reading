@@ -129,6 +129,8 @@ def main():
         num_workers=options["input"]["num_worker"],
         drop_last=True
         )
+    train_size = len(train_dataset)
+    
     batch_size = options["input"]["batch_size"]
     stats_frequency = options["training"]["stats_frequency"]
     if args.test:
@@ -206,24 +208,21 @@ def main():
                     
                     print('[%d, %5d] loss: %.8f, acc: %f' %
                     (epoch + 1, i_batch + 1, running_loss / stats_frequency, count/count_bs))
-                    writer.add_scalar('train/loss', running_loss/stats_frequency, i_batch*batch_size)
-                    writer.add_scalar('train/accuracy', count/count_bs, i_batch*batch_size)
-                    writer.add_scalar('train/true', count, i_batch*batch_size)
-                    writer.add_scalar('train/false', count_bs-count, i_batch*batch_size)
+                    writer.add_scalar('train/loss', running_loss/stats_frequency, (epoch-1) * train_size + i_batch*batch_size)
+                    writer.add_scalar('train/accuracy', count/count_bs, (epoch-1) * train_size + i_batch*batch_size)
+                    writer.add_scalar('train/true', count, (epoch-1) * train_size + i_batch*batch_size)
+                    writer.add_scalar('train/false', count_bs-count, (epoch-1) * train_size + i_batch*batch_size)
                     try:
                         print('lr {}, name {}'.format(optimizer.param_groups[-1]['lr'], options['name']))
-                        writer.add_scalar('train/lr', optimizer.param_groups[-1]['lr'], i_batch*batch_size)
+                        writer.add_scalar('train/lr', optimizer.param_groups[-1]['lr'], (epoch-1) * train_size + i_batch*batch_size)
                     except Exception as e:
-                        print(e)
                         print('lr {}, name {}'.format(options['training']['learning_rate'], options['name']))
-                        writer.add_scalar('train/lr', options['training']['learning_rate'], i_batch*batch_size)
-                    for name, param in model.named_parameters():
-                        writer.add_histogram(name, param.clone().cpu().data.numpy(), i_batch*batch_size)
+                        writer.add_scalar('train/lr', options['training']['learning_rate'], (epoch-1) * train_size + i_batch*batch_size)
                     running_loss = 0.0
                     count = 0
                     count_bs = 0
                     currentTime = datetime.now()
-                    output_iteration(i_batch * batch_size, currentTime - startTime, len(train_dataset))
+                    output_iteration(i_batch * batch_size, currentTime - startTime, train_size)
 
         print("Epoch completed")
         if options['general']['model_save'] and options['training']['train']:
