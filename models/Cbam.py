@@ -136,7 +136,7 @@ class CBAM(nn.Module):
     def forward(self, x):
         #x_out = self.ChannelGate(x, landmark)
         if not self.no_spatial:
-            x_out = self.SpatialGate(x_out, landmark)
+            x = self.SpatialGate(x)
         if not self.no_temporal:
-            x_out = self.temporalGate(x_out, landmark)
-        return x_out
+            x = self.temporalGate(x)
+        return x
