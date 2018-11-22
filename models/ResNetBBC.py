@@ -71,10 +71,10 @@ class BasicBlock(nn.Module):
         self.bn2 = nn.BatchNorm2d(planes)
         self.downsample = downsample
         self.stride = stride
-        if attention and attention.startswith('tcbam'):
-            self.attn = CBAM(planes, inplanes, stride, no_spatial=False, no_temporal=False)
-        else:
-            self.attn = None
+        # if attention and attention.startswith('tcbam'):
+        #     self.attn = CBAM(planes, inplanes, stride, no_spatial=False, no_temporal=False)
+        # else:
+        #     self.attn = None
 
     def forward(self, x, att=None):
         residual = x
@@ -87,9 +87,6 @@ class BasicBlock(nn.Module):
 
         if self.downsample is not None:
             residual = self.downsample(x)
-
-        if self.attn:
-            out, att = self.attn(out, att)
 
         out += residual
         out = self.relu(out)
@@ -112,14 +109,14 @@ class Bottleneck(nn.Module):
         self.relu = nn.ReLU(inplace=True)
         self.downsample = downsample
         self.stride = stride
-        if attention and attention.startswith('cbam'):
-            self.attn = CBAM(planes*4, inplanes, stride)
-        elif attention and attention.startswith('se'):
-            self.attn = CBAM(planes*4, inplanes, stride, no_spatial=True)
-        elif attention and attention.startswith('tcbam'):
-            self.attn = CBAM(planes*4, inplanes, stride, no_spatial=True, no_temporal=False)
-        else:
-            self.attn = None
+        # if attention and attention.startswith('cbam'):
+        #     self.attn = CBAM(planes*4, inplanes, stride)
+        # elif attention and attention.startswith('se'):
+        #     self.attn = CBAM(planes*4, inplanes, stride, no_spatial=True)
+        # elif attention and attention.startswith('tcbam'):
+        #     self.attn = CBAM(planes*4, inplanes, stride, no_spatial=True, no_temporal=False)
+        # else:
+        #     self.attn = None
 
     def forward(self, x, att=None):
         residual = x
@@ -138,9 +135,6 @@ class Bottleneck(nn.Module):
         if self.downsample is not None:
             residual = self.downsample(x)
 
-        if self.attn:
-            out, att = self.attn(out, att)
-
         out += residual
         out = self.relu(out)
 
@@ -148,9 +142,10 @@ class Bottleneck(nn.Module):
 
 class ResNet(nn.Module):
 
-    def __init__(self, block, layers, num_classes=1000, downsample3=False):
+    def __init__(self, block, layers, num_classes=1000, attention=attention, downsample3=False):
         self.inplanes = 64
         super(ResNet, self).__init__()
+        self.attention = attention
         self.layer1 = self._make_layer(block, 64, layers[0])
         self.layer2 = self._make_layer(block, 128, layers[1], stride=2)
         self.layer3 = self._make_layer(block, 256, layers[2], stride=2)
@@ -271,7 +266,7 @@ class ResNetBBC(nn.Module):
     def __init__(self, options):
         super(ResNetBBC, self).__init__()
         self.batch_size = options["input"]["batch_size"]
-        self.resnetModel = resnet34(False, num_classes=options["model"]["input_dim"], downsample3=options["model"]["downsample"])
+        self.resnetModel = resnet34(False, num_classes=options["model"]["input_dim"], attention=options["model"]["attention"], downsample3=options["model"]["downsample"])
         self.input_dim = options['model']['input_dim']
         
     def forward(self, x, landmark=False):
