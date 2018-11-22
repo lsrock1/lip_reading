@@ -32,8 +32,8 @@ class LipRead(nn.Module):
         self.apply(weights_init)
 
     def forward(self, x, landmark=False):
-        x, attn = self.frontend(x, landmark)
-        x = self.resnet(x, attn)
+        x = self.frontend(x)
+        x = self.resnet(x)
         x = self.lstm(x)
         return x
 
