@@ -76,7 +76,7 @@ class BasicBlock(nn.Module):
         # else:
         #     self.attn = None
 
-    def forward(self, x, att=None):
+    def forward(self, x):
         residual = x
         out = self.conv1(x)
         out = self.bn1(out)
@@ -271,6 +271,7 @@ class ResNetBBC(nn.Module):
         
     def forward(self, x):
         x = x.transpose(1, 2).contiguous().view(-1, 64, 28, 28)
+        print(type(x))
         x = self.resnetModel(x)
         x = x.view(self.batch_size, -1, self.input_dim)
         return x
