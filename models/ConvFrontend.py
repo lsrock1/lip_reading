@@ -32,6 +32,7 @@ class ConvFrontend(nn.Module):
         if self.coord:
             x = self.addCoord(x)
         x = self.pool(F.relu(self.norm(self.conv(x))))
+        print(type(x))
         if self.attn:
             x = self.attn(
                 x.transpose(1, 2).contiguous().view(-1, 64, 28, 28))
