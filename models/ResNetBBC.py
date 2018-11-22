@@ -146,6 +146,7 @@ class ResNet(nn.Module):
         self.inplanes = 64
         super(ResNet, self).__init__()
         self.attention = attention
+        self.downsample3 = downsample3
         self.layer1 = self._make_layer(block, 64, layers[0])
         self.layer2 = self._make_layer(block, 128, layers[1], stride=2)
         self.layer3 = self._make_layer(block, 256, layers[2], stride=2)
@@ -154,7 +155,6 @@ class ResNet(nn.Module):
         self.avgpool = nn.AvgPool2d(4, stride=1)
         self.fc = nn.Linear(512 * block.expansion, num_classes)
         self.bn2 = nn.BatchNorm1d(num_classes)
-        self.downsample3 = downsample3
 
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
