@@ -123,7 +123,7 @@ class TemporalGate(nn.Module):
 
 
 class CBAM(nn.Module):
-    def __init__(self, channel, in_channel, stride, kernel_size=3, padding=1, reduction_ratio=16, pool_types=['avg', 'max'], no_spatial=False, no_temporal=True):
+    def __init__(self, reduction_ratio=16, pool_types=['avg', 'max'], no_spatial=False, no_temporal=True):
         super(CBAM, self).__init__()
         #self.ChannelGate = ChannelGate(channel, reduction_ratio, pool_types, dropout=dropout if no_spatial and no_temporal else 0.)
         self.no_spatial = no_spatial
