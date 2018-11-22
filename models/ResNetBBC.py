@@ -178,7 +178,7 @@ class ResNet(nn.Module):
                 downsample = nn.Sequential(
                     TemporalUnflat(),
                     nn.Conv3d(self.inplanes, planes * block.expansion,
-                          kernel_size=(5,1,1), stride=(1,stride,stride), padding=(2,0,0), bias=False)
+                          kernel_size=(5,1,1), stride=(1,stride,stride), padding=(2,0,0), bias=False),
                     nn.BatchNorm3d(planes * block.expansion),
                     TemporalFlat()
                 )
