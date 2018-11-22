@@ -71,7 +71,7 @@ def main():
             factor=options['training']['lr_decay'],
             patience=3,
             verbose=True,
-            threshold=0.03,
+            threshold=0.003,
             threshold_mode='abs',
         )
         scheduler.best = args.best
