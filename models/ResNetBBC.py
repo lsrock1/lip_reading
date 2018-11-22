@@ -160,21 +160,21 @@ class ResNet(nn.Module):
             self.r1 = nn.Sequential(
                 TemporalUnflat(),
                 nn.Conv3d(64, 64,
-                        kernel_size=(5,1,1), stride=(1,stride,stride), padding=(2,0,0), bias=False),
+                        kernel_size=(5,1,1), stride=1, padding=(2,0,0), bias=False),
                 nn.BatchNorm3d(planes * block.expansion),
                 TemporalFlat()
             )
             self.r2 = nn.Sequential(
                 TemporalUnflat(),
                 nn.Conv3d(128, 128,
-                        kernel_size=(5,1,1), stride=(1,stride,stride), padding=(2,0,0), bias=False),
+                        kernel_size=(5,1,1), stride=1, padding=(2,0,0), bias=False),
                 nn.BatchNorm3d(planes * block.expansion),
                 TemporalFlat()
             )
             self.r3 = nn.Sequential(
                 TemporalUnflat(),
                 nn.Conv3d(256, 256,
-                        kernel_size=(5,1,1), stride=(1,stride,stride), padding=(2,0,0), bias=False),
+                        kernel_size=(5,1,1), stride=1, padding=(2,0,0), bias=False),
                 nn.BatchNorm3d(planes * block.expansion),
                 TemporalFlat()
             )
