@@ -193,7 +193,6 @@ def main():
                     x = sample_batched[0].cuda()
                     labels = sample_batched[1].cuda()
                 if not options['input']['landmark_seperate']:
-                    print(type(x))
                     outputs = model(x)
                 else:
                     outputs = model(x, dot_labels)
