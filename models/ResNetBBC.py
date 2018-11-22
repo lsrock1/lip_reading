@@ -280,9 +280,9 @@ class TemporalUnflat(nn.Module):
     def forward(self, x):
         bs, c, h, w = x.size()
         bs = int(bs/29)
-        return x.view(bs, 29, c, h, w)
+        return x.view(bs, 29, c, h, w).transpose(1, 2).contiguous()
 
 class TemporalFlat(nn.Module):
     def forward(self, x):
         bs, _, c, h, w = x.size()
-        return x.view(-1, c, h, w)
+        return x.transpose(1, 2).contiguous().view(-1, c, h, w)
