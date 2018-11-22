@@ -91,7 +91,7 @@ class BasicBlock(nn.Module):
         out += residual
         out = self.relu(out)
 
-        return out, att
+        return out
 
 
 class Bottleneck(nn.Module):
@@ -138,7 +138,7 @@ class Bottleneck(nn.Module):
         out += residual
         out = self.relu(out)
 
-        return out, att
+        return out
 
 class ResNet(nn.Module):
 
