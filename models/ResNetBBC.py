@@ -156,6 +156,31 @@ class ResNet(nn.Module):
         self.fc = nn.Linear(512 * block.expansion, num_classes)
         self.bn2 = nn.BatchNorm1d(num_classes)
 
+        if self.downsample3:
+            self.r1 = nn.Sequential(
+                TemporalUnflat(),
+                nn.Conv3d(64, 64,
+                        kernel_size=(5,1,1), stride=(1,stride,stride), padding=(2,0,0), bias=False),
+                nn.BatchNorm3d(planes * block.expansion),
+                TemporalFlat()
+            )
+            self.r2 = nn.Sequential(
+                TemporalUnflat(),
+                nn.Conv3d(128, 128,
+                        kernel_size=(5,1,1), stride=(1,stride,stride), padding=(2,0,0), bias=False),
+                nn.BatchNorm3d(planes * block.expansion),
+                TemporalFlat()
+            )
+            self.r3 = nn.Sequential(
+                TemporalUnflat(),
+                nn.Conv3d(256, 256,
+                        kernel_size=(5,1,1), stride=(1,stride,stride), padding=(2,0,0), bias=False),
+                nn.BatchNorm3d(planes * block.expansion),
+                TemporalFlat()
+            )
+        else:
+            self.r1, self.r2, self.r3 = None, None, None
+
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
                 n = m.kernel_size[0] * m.kernel_size[1] * m.out_channels
@@ -168,14 +193,6 @@ class ResNet(nn.Module):
         downsample = None
         if stride != 1 or self.inplanes != planes * block.expansion:
             if self.downsample3:
-                downsample = nn.Sequential(
-                    TemporalUnflat(),
-                    nn.Conv3d(self.inplanes, planes * block.expansion,
-                          kernel_size=(5,1,1), stride=(1,stride,stride), padding=(2,0,0), bias=False),
-                    nn.BatchNorm3d(planes * block.expansion),
-                    TemporalFlat()
-                )
-            else:
                 downsample = nn.Sequential(
                     nn.Conv2d(self.inplanes, planes * block.expansion,
                             kernel_size=1, stride=stride, bias=False),
@@ -192,8 +209,14 @@ class ResNet(nn.Module):
 
     def forward(self, x):
         x = self.layer1(x)
+        if self.r1:
+            x = self.r1(x)
         x = self.layer2(x)
+        if self.r2:
+            x = self.r2(x)
         x = self.layer3(x)
+        if self.r3:
+            x = self.r3(x)
         x = self.layer4(x)
         x = self.avgpool(x)
         x = x.view(x.size(0), -1)
