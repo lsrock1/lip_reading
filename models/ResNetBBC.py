@@ -151,7 +151,6 @@ class ResNet(nn.Module):
     def __init__(self, block, layers, num_classes=1000, downsample3=False):
         self.inplanes = 64
         super(ResNet, self).__init__()
-        self.dropout = dropout
         self.layer1 = self._make_layer(block, 64, layers[0])
         self.layer2 = self._make_layer(block, 128, layers[1], stride=2)
         self.layer3 = self._make_layer(block, 256, layers[2], stride=2)
