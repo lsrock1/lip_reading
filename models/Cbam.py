@@ -24,7 +24,7 @@ class Flatten(nn.Module):
         return x.view(x.size(0), -1)
 
 class ChannelGate(nn.Module):
-    def __init__(self, gate_channels, reduction_ratio=16, pool_types=['avg', 'max']):
+    def __init__(self, gate_channels, reduction_ratio=16, pool_types=['avg', 'max'], dropout=0.2):
         super(ChannelGate, self).__init__()
         self.gate_channels = gate_channels
         self.mlp = nn.Sequential(
@@ -34,9 +34,10 @@ class ChannelGate(nn.Module):
             nn.Linear(gate_channels // reduction_ratio, gate_channels)
             )
         self.pool_types = pool_types
-
-    def forward(self, x):
-        landmark = x
+        self.dropout = nn.Dropout2d(dropout) if dropout > 0. else None
+    def forward(self, x, landmark):
+        if isinstance(landmark, bool):
+            landmark = x
         channel_att_sum = None
         for pool_type in self.pool_types:
             if pool_type=='avg':
@@ -59,6 +60,8 @@ class ChannelGate(nn.Module):
                 channel_att_sum = channel_att_sum + channel_att_raw
 
         scale = torch.sigmoid(channel_att_sum).unsqueeze(2).unsqueeze(3).expand_as(x)
+        if self.dropout:
+            scale = self.dropout(scale)
         return x * scale
 
 def logsumexp_2d(tensor):
@@ -72,9 +75,10 @@ class ChannelPool(nn.Module):
         return torch.cat((torch.max(x,1)[0].unsqueeze(1), torch.mean(x,1).unsqueeze(1)), dim=1)
 
 class SpatialGate(nn.Module):
-    def __init__(self):
+    def __init__(self, dropout=0.2):
         super(SpatialGate, self).__init__()
         kernel_size = 7
+        self.dropout = nn.Dropout2d(dropout) if dropout > 0. else None
         self.compress = ChannelPool()
         self.spatial = BasicConv(2, 1, kernel_size, stride=1, padding=(kernel_size-1) // 2, relu=False)
     
@@ -84,6 +88,8 @@ class SpatialGate(nn.Module):
         x_compress = self.compress(landmark)
         x_out = self.spatial(x_compress)
         scale = torch.sigmoid(x_out) # broadcasting
+        if self.dropout:
+            scale = self.dropout(scale)
         return x * scale
 
 class TemporalGate(nn.Module):
@@ -100,7 +106,8 @@ class TemporalGate(nn.Module):
         self.pool_types = pool_types
 
     def forward(self, x, landmark):
-        landmark = x
+        if isinstance(landmark, bool):
+            landmark = x
         bs, c, h, w = x.size()
         x = x.view(int(bs/29), 29, c, h, w)
         landmark = landmark.view(int(bs/29), 29, -1)
@@ -123,20 +130,28 @@ class TemporalGate(nn.Module):
 
 
 class CBAM(nn.Module):
-    def __init__(self, reduction_ratio=16, pool_types=['avg', 'max'], no_spatial=False, no_temporal=True):
+    def __init__(self, channel, in_channel, stride, kernel_size=3, padding=1, reduction_ratio=16, pool_types=['avg', 'max'], no_spatial=False, no_temporal=True, dropout=0.2):
         super(CBAM, self).__init__()
-        #self.ChannelGate = ChannelGate(channel, reduction_ratio, pool_types, dropout=dropout if no_spatial and no_temporal else 0.)
+        self.ChannelGate = ChannelGate(channel, reduction_ratio, pool_types, dropout=dropout if no_spatial and no_temporal else 0.)
         self.no_spatial = no_spatial
         self.no_temporal = no_temporal
+        self.resize = nn.Sequential(
+            nn.Conv2d(in_channel, channel, kernel_size=kernel_size, stride=stride, padding=padding, bias=False),
+            nn.BatchNorm2d(channel),
+        )
         if not no_spatial:
-            self.SpatialGate = SpatialGate()
+            self.SpatialGate = SpatialGate(dropout=dropout if not no_temporal else 0.)
         if not no_temporal:
-            self.temporalGate = TemporalGate()
+            self.temporalGate = TemporalGate(dropout=dropout)
             
-    def forward(self, x):
-        #x_out = self.ChannelGate(x, landmark)
+    def forward(self, x, landmark=False):
+        if not isinstance(landmark, bool):
+            landmark = self.resize(landmark)
+        x_out = self.ChannelGate(x, landmark)
+        if not isinstance(landmark, bool):
+            landmark = F.relu(landmark)
         if not self.no_spatial:
-            x = self.SpatialGate(x)
+            x_out = self.SpatialGate(x_out, landmark)
         if not self.no_temporal:
-            x = self.temporalGate(x)
-        return x
+            x_out = self.temporalGate(x_out, landmark)
+        return x_out, landmark
