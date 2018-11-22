@@ -1,4 +1,4 @@
-name: baseline_plateu
+name: baseline_downsample
 general: 
   usecudnn: true
   usecudnnbenchmark: true
