@@ -166,7 +166,7 @@ class ResNet(nn.Module):
         self.fc = nn.Linear(512 * block.expansion, num_classes)
         self.bn2 = nn.BatchNorm1d(num_classes)
 
-        if self.downsample3:
+        if temporal:
             self.r1 = nn.Sequential(
                 TemporalUnflat(),
                 nn.Conv3d(64, 64,
