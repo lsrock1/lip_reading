@@ -166,28 +166,30 @@ class ResNet(nn.Module):
         self.fc = nn.Linear(512 * block.expansion, num_classes)
         self.bn2 = nn.BatchNorm1d(num_classes)
 
-        if temporal:
-            self.t1 = nn.Sequential(
+        if self.downsample3:
+            self.r1 = nn.Sequential(
                 TemporalUnflat(),
-                nn.Conv3d(self.inplanes, planes * block.expansion,
-                        kernel_size=(5,1,1), stride=(1,stride,stride), padding=(2,0,0), bias=False),
-                nn.BatchNorm3d(planes * block.expansion),
+                nn.Conv3d(64, 64,
+                        kernel_size=(5,1,1), stride=1, padding=(2,0,0), bias=False),
+                nn.BatchNorm3d(64),
                 TemporalFlat()
             )
-            self.t2 = nn.Sequential(
+            self.r2 = nn.Sequential(
                 TemporalUnflat(),
-                nn.Conv3d(self.inplanes, planes * block.expansion,
-                        kernel_size=(5,1,1), stride=(1,stride,stride), padding=(2,0,0), bias=False),
-                nn.BatchNorm3d(planes * block.expansion),
+                nn.Conv3d(128, 128,
+                        kernel_size=(5,1,1), stride=1, padding=(2,0,0), bias=False),
+                nn.BatchNorm3d(128),
                 TemporalFlat()
             )
-            self.t3 = nn.Sequential(
+            self.r3 = nn.Sequential(
                 TemporalUnflat(),
-                nn.Conv3d(self.inplanes, planes * block.expansion,
-                        kernel_size=(5,1,1), stride=(1,stride,stride), padding=(2,0,0), bias=False),
-                nn.BatchNorm3d(planes * block.expansion),
+                nn.Conv3d(256, 256,
+                        kernel_size=(5,1,1), stride=1, padding=(2,0,0), bias=False),
+                nn.BatchNorm3d(256),
                 TemporalFlat()
             )
+        else:
+            self.r1, self.r2, self.r3 = None, None, None
 
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
@@ -216,21 +218,17 @@ class ResNet(nn.Module):
 
     def forward(self, x, landmark=False):
         x, attn = self.layer1(x, landmark if self.attn and self.attn.endswith('lmk') else False)
+
         if self.r1:
-            x, landmark = self.r1(x, landmark)
-        if self.t1:
-            x = self.t1(x)
+            x = self.r1(x)
         x, attn = self.layer2(x, attn if self.attn and self.attn.endswith('lmk') else False)
+        
         if self.r2:
-            x, landmark = self.r2(x, landmark)
-        if self.t2:
-            x = self.t2(x)
+            x = self.r2(x)
         x, attn = self.layer3(x, attn if self.attn and self.attn.endswith('lmk') else False)
+        
         if self.r3:
-            x, _ = self.r3(x, landmark)
-            del _
-        if self.t3:
-            x = self.t3(x)
+            x = self.r3(x)
         x, _ = self.layer4(x, attn if self.attn and self.attn.endswith('lmk') else False)
         del _
         x = self.avgpool(x)
@@ -331,4 +329,3 @@ class TemporalFlat(nn.Module):
     def forward(self, x):
         bs, c, _, h, w = x.size()
         return x.transpose(1, 2).contiguous().view(-1, c, h, w)
-        
