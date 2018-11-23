@@ -1,4 +1,4 @@
-name: baseline_plateu
+name: baseline_temporal_plateu
 general: 
   usecudnn: true
   usecudnnbenchmark: true
@@ -24,7 +24,7 @@ model:
   attention: false
   attention_dropout: 0.5
   coord: false
-  temporal: false
+  temporal: true
 
 training:
   train: true
