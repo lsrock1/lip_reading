@@ -222,7 +222,7 @@ class ResNet(nn.Module):
         if self.r1:
             x = self.r1(x)
         x, attn = self.layer2(x, attn if self.attn and self.attn.endswith('lmk') else False)
-        
+        print(x.size())
         if self.r2:
             x = self.r2(x)
         x, attn = self.layer3(x, attn if self.attn and self.attn.endswith('lmk') else False)
