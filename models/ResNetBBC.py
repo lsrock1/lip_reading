@@ -322,6 +322,7 @@ class AS(nn.Sequential):
 class TemporalUnflat(nn.Module):
     def forward(self, x):
         bs, c, h, w = x.size()
+        print(bs, c, h, w)
         bs = int(bs/29)
         return x.view(bs, 29, c, h, w).transpose(1, 2).contiguous()
 
