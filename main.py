@@ -61,7 +61,7 @@ def main():
                 weight_decay = options['training']['weight_decay']
             )
     if options['training']['schedule'] == 'plateau':
-        if args.start > 1 and args.best == 0.:
+        if args.start > 1 and args.best == 0. and not args.test:
             print("must have best accuracy")
             raise
         plat = True
