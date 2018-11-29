@@ -26,7 +26,7 @@ class ConvFrontend(nn.Module):
             self.attn = CBAM(64, dim, 4, 8, 2, no_temporal=False, dropout=options['model']['attention_dropout'])
         else:
             self.attn = None
-        self.conv = nn.Conv3d(dim, 64, (3,7,7), stride=(1,2,2), padding=(1,3,3), bias=False)
+        self.conv = nn.Conv3d(dim, 64, (3 if options['model']['temporal'] else 5,7,7), stride=(1,2,2), padding=(1 if options['model']['temporal'] else 2,3,3), bias=False)
         self.norm = nn.BatchNorm3d(64)
         self.pool = nn.MaxPool3d((1,3,3), stride=(1,2,2), padding=(0,1,1))
 
