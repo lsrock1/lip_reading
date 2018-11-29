@@ -170,21 +170,21 @@ class ResNet(nn.Module):
             self.r1 = nn.Sequential(
                 TemporalUnflat(),
                 nn.Conv3d(64, 64,
-                        kernel_size=(5,1,1), stride=1, padding=(1,0,0), bias=False),
+                        kernel_size=(5,1,1), stride=1, padding=(2,0,0), bias=False),
                 nn.BatchNorm3d(64),
                 TemporalFlat()
             )
             self.r2 = nn.Sequential(
                 TemporalUnflat(),
                 nn.Conv3d(128, 128,
-                        kernel_size=(5,1,1), stride=1, padding=(1,0,0), bias=False),
+                        kernel_size=(5,1,1), stride=1, padding=(2,0,0), bias=False),
                 nn.BatchNorm3d(128),
                 TemporalFlat()
             )
             self.r3 = nn.Sequential(
                 TemporalUnflat(),
                 nn.Conv3d(256, 256,
-                        kernel_size=(5,1,1), stride=1, padding=(1,0,0), bias=False),
+                        kernel_size=(5,1,1), stride=1, padding=(2,0,0), bias=False),
                 nn.BatchNorm3d(256),
                 TemporalFlat()
             )
@@ -222,7 +222,6 @@ class ResNet(nn.Module):
         if self.r1:
             x = self.r1(x)
         x, attn = self.layer2(x, attn if self.attn and self.attn.endswith('lmk') else False)
-        print(x.size())
         if self.r2:
             x = self.r2(x)
         x, attn = self.layer3(x, attn if self.attn and self.attn.endswith('lmk') else False)
@@ -322,7 +321,6 @@ class AS(nn.Sequential):
 class TemporalUnflat(nn.Module):
     def forward(self, x):
         bs, c, h, w = x.size()
-        print(bs, c, h, w)
         bs = int(bs/29)
         return x.view(bs, 29, c, h, w).transpose(1, 2).contiguous()
 
