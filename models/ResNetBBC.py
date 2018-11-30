@@ -191,11 +191,11 @@ class ResNet(nn.Module):
             if attention and attention.startswith('tcbam'):
                 self.a1 = CBAM(64, 64, 1, no_channel=True, no_spatial=True, no_temporal=False, dropout=dropout)
                 self.a2 = CBAM(128, 128, 2, no_channel=True, no_spatial=True, no_temporal=False, dropout=dropout)
-                self.a1 = CBAM(256, 256, 2, no_channel=True, no_spatial=True, no_temporal=False, dropout=dropout)
+                self.a3 = CBAM(256, 256, 2, no_channel=True, no_spatial=True, no_temporal=False, dropout=dropout)
             else:
                 self.a1, self.a2, self.a3 = None, None, None
         else:
-            self.r1, self.r2, self.r3 = None, None, None
+            self.r1, self.r2, self.r3, self.a1, self.a2, self.a3 = None, None, None, None, None, None
 
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
