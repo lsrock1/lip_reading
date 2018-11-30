@@ -71,12 +71,12 @@ class BasicBlock(nn.Module):
         self.bn2 = nn.BatchNorm2d(planes)
         self.downsample = downsample
         self.stride = stride
-        if attention and attention.startswith('cbam'):
+        if (attention and attention.startswith('cbam')):
             self.attn = CBAM(planes, inplanes, stride, dropout=dropout)
         elif attention and attention.startswith('se'):
             self.attn = CBAM(planes, inplanes, stride, no_spatial=True, dropout=dropout)
-        elif attention and attention.startswith('tcbam'):
-            self.attn = CBAM(planes, inplanes, stride, no_temporal=False, dropout=dropout)
+        # elif attention and attention.startswith('tcbam'):
+        #     self.attn = CBAM(planes, inplanes, stride, no_temporal=False, dropout=dropout)
         else:
             self.attn = None
 
@@ -120,8 +120,8 @@ class Bottleneck(nn.Module):
             self.attn = CBAM(planes*4, inplanes, stride, dropout=dropout)
         elif attention and attention.startswith('se'):
             self.attn = CBAM(planes*4, inplanes, stride, no_spatial=True, dropout=dropout)
-        elif attention and attention.startswith('tcbam'):
-            self.attn = CBAM(planes*4, inplanes, stride, no_temporal=False, dropout=dropout)
+        # elif attention and attention.startswith('tcbam'):
+        #     self.attn = CBAM(planes*4, inplanes, stride, no_temporal=False, dropout=dropout)
         else:
             self.attn = None
 
@@ -188,6 +188,12 @@ class ResNet(nn.Module):
                 nn.BatchNorm3d(256),
                 TemporalFlat()
             )
+            if attention and attention.startswith('tcbam'):
+                self.a1 = CBAM(64, 64, stride, no_channel=True, no_spatial=True, no_temporal=False, dropout=dropout)
+                self.a2 = CBAM(128, 128, stride, no_channel=True, no_spatial=True, no_temporal=False, dropout=dropout)
+                self.a1 = CBAM(256, 256, stride, no_channel=True, no_spatial=True, no_temporal=False, dropout=dropout)
+            else:
+                self.a1, self.a2, self.a3 = None, None, None
         else:
             self.r1, self.r2, self.r3 = None, None, None
 

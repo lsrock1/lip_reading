@@ -1,0 +1,43 @@
+name: baseline_temporal_plateu
+general: 
+  usecudnn: true
+  usecudnnbenchmark: true
+  model_load: true
+  model_save: true
+  save_path: ./save
+
+input: 
+  batch_size: 16
+  num_worker: 16
+  shuffle: true
+  aug: false
+  landmark: false
+  landmark_seperate: false
+
+model:
+  type: LSTM
+  front: RESNET
+  input_dim: 256
+  hidden_dim: 256
+  num_class: 500
+  num_lstm: 2
+  attention: tcbam
+  attention_dropout: 0.
+  coord: false
+  temporal: true
+
+training:
+  train: true
+  max_epoch: 20
+  stats_frequency: 50
+  data_path: /home/deepuser/lrw_result
+  learning_rate: 0.0001
+  weight_decay: 0.0000001
+  schedule: plateau
+  lr_decay: 0.1
+
+validation:
+  validate: true
+  data_path: /home/deepuser/lrw_result
+  save_accuracy: true
+  accuracy_path: ./

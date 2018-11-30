@@ -130,11 +130,12 @@ class TemporalGate(nn.Module):
 
 
 class CBAM(nn.Module):
-    def __init__(self, channel, in_channel, stride, kernel_size=3, padding=1, reduction_ratio=16, pool_types=['avg', 'max'], no_spatial=False, no_temporal=True, dropout=0.2):
+    def __init__(self, channel, in_channel, stride, kernel_size=3, padding=1, reduction_ratio=16, pool_types=['avg', 'max'], no_channel=False, no_spatial=False, no_temporal=True, dropout=0.2):
         super(CBAM, self).__init__()
         self.ChannelGate = ChannelGate(channel, reduction_ratio, pool_types, dropout=dropout if no_spatial and no_temporal else 0.)
         self.no_spatial = no_spatial
         self.no_temporal = no_temporal
+        self.no_channel = no_channel
         self.resize = nn.Sequential(
             nn.Conv2d(in_channel, channel, kernel_size=kernel_size, stride=stride, padding=padding, bias=False),
             nn.BatchNorm2d(channel),
@@ -147,7 +148,8 @@ class CBAM(nn.Module):
     def forward(self, x, landmark=False):
         if not isinstance(landmark, bool):
             landmark = self.resize(landmark)
-        x_out = self.ChannelGate(x, landmark)
+        if not self.no_channel:
+            x_out = self.ChannelGate(x, landmark)
         if not isinstance(landmark, bool):
             landmark = F.relu(landmark)
         if not self.no_spatial:
