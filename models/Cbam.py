@@ -149,11 +149,11 @@ class CBAM(nn.Module):
         if not isinstance(landmark, bool):
             landmark = self.resize(landmark)
         if not self.no_channel:
-            x_out = self.ChannelGate(x, landmark)
+            x = self.ChannelGate(x, landmark)
         if not isinstance(landmark, bool):
             landmark = F.relu(landmark)
         if not self.no_spatial:
-            x_out = self.SpatialGate(x_out, landmark)
+            x = self.SpatialGate(x, landmark)
         if not self.no_temporal:
-            x_out = self.temporalGate(x_out, landmark)
-        return x_out, landmark
+            x = self.temporalGate(x, landmark)
+        return x, landmark
