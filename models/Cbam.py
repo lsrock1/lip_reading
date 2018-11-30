@@ -93,7 +93,7 @@ class SpatialGate(nn.Module):
         return x * scale
 
 class TemporalGate(nn.Module):
-    def __init__(self, gate_temporal=29, linear_size=5, pool_types=['avg', 'max']):
+    def __init__(self, gate_temporal=29, linear_size=5, pool_types=['avg', 'max'], dropout=0.2):
         super(TemporalGate, self).__init__()
         self.dropout = nn.Dropout2d(0.2)
         self.gate_channels = gate_temporal
