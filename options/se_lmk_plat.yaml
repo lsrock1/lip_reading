@@ -1,4 +1,4 @@
-name: attention_se_lmk_plateau
+name: attention_se_norm
 general: 
   usecudnn: true
   usecudnnbenchmark: true
@@ -21,9 +21,10 @@ model:
   hidden_dim: 256
   num_class: 500
   num_lstm: 2
-  attention: se_lmk
+  attention: se
   attention_dropout: 0.
   coord: false
+  temporal: false
 
 training:
   train: true

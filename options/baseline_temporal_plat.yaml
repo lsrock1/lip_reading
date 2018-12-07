@@ -1,4 +1,4 @@
-name: baseline_temporal_plateu
+name: baseline_temporal_coord_landmark
 general: 
   usecudnn: true
   usecudnnbenchmark: true
@@ -11,7 +11,7 @@ input:
   num_worker: 16
   shuffle: true
   aug: false
-  landmark: false
+  landmark: true
   landmark_seperate: false
 
 model:
@@ -23,7 +23,7 @@ model:
   num_lstm: 2
   attention: false
   attention_dropout: 0.5
-  coord: false
+  coord: true
   temporal: true
 
 training:
