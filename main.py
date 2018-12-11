@@ -104,6 +104,8 @@ def main():
         if path:
             print('load {} optimizer..'.format(path[-1]))
             optimizer.load_state_dict(torch.load(path[-1]))
+    for i, param_group in enumerate(optimizer.param_groups):
+        param_group['lr'] = options['training']['learning_rate']
 
     train_dataset = LipreadingDataset(
         options["training"]["data_path"], "train", 
