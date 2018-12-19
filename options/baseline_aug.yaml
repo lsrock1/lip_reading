@@ -1,4 +1,4 @@
-name: baseline_temporal_coord_landmark
+name: baseline_aug
 general: 
   usecudnn: true
   usecudnnbenchmark: true
