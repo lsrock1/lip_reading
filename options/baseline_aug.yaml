@@ -1,4 +1,4 @@
-name: baseline_aug
+name: baseline_temporal_coord_landmark
 general: 
   usecudnn: true
   usecudnnbenchmark: true
@@ -22,19 +22,19 @@ model:
   num_class: 500
   num_lstm: 2
   attention: false
-  attention_dropout: 0.
+  attention_dropout: 0.5
   coord: false
+  temporal: false
 
 training:
   train: true
-  max_epoch: 20
+  max_epoch: 25
   stats_frequency: 50
   data_path: /home/deepuser/lrw_result
   learning_rate: 0.0005
   weight_decay: 0.0000001
   schedule: plateau
   lr_decay: 0.1
-
 
 validation:
   validate: true
