@@ -35,6 +35,7 @@ def bbc(vidframes, augmentation=True):
             transforms.ToPILImage(),
             croptransform,
             transforms.ToTensor(),
+            transforms.Normalize([0.40921722697548507,],[0.15418997756505334,]),
         ])(np.expand_dims(data[:, :, 0], axis=2))
 
         temporalvolume[index, 0, :, :] = result
@@ -43,6 +44,7 @@ def bbc(vidframes, augmentation=True):
                 transforms.ToPILImage(),
                 croptransform,
                 transforms.ToTensor(),
+                transforms.Normalize([0.15735664013013212,],[0.2322109507292421,]),
             ])(np.expand_dims(data[:, :, 1], axis=2))
 
             temporalvolume[index, 1, :, :] = result

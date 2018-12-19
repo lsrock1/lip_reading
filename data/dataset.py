@@ -26,10 +26,11 @@ class LipreadingDataset(Dataset):
         data = self.file_list[idx]
         label = self.label_list[idx]
         #temporalvolume = bbc(data[0] if self.landmarkloss or self.seperate else data, self.aug)
-        temporalvolume = data[0][:, :, 4:116, 4:116] if self.landmark_seperate else data[:, :, 4:116, 4:116]
+        #temporalvolume = data[0][:, :, 4:116, 4:116] if self.landmark_seperate else data[:, :, 4:116, 4:116]
         if self.landmark_seperate:
-            return torch.tensor(temporalvolume).float(), self.labelToInt[label], data[1][:, :, 4:116, 4:116]
-        return torch.tensor(temporalvolume).float(), self.labelToInt[label]
+            return bbc(data[0] if self.landmark_seperate else data, self.aug), self.labelToInt[label], bbc(data[1] if self.landmark_seperate else data, self.aug)
+        else:
+            return bbc(data, self.aug), self.labelToInt[label]
 
 
 class LandVideo:
@@ -49,7 +50,7 @@ class LandVideo:
                     for dot in frame:
                         channel[0, index, :, :] += make_gaussian((120, 120), center=(int(dot[0]/2) if int(dot[0]/2) < 120 else 119, int(dot[1]/2) if int(dot[1]/2) < 120 else 119))
                     #channel[0, index, int(dot[1]/2) if int(dot[1]/2) < 120 else 119, int(dot[0]/2) if int(dot[0]/2) < 120 else 119] = 255
-            channel = (channel - 0.15735664013013212)/0.2322109507292421
+            channel = channel
             if self.landmark_seperate:
                 return data, channel
             else:
@@ -84,7 +85,7 @@ class Video(list):
             else:
                 break
         cap.release()
-        return (np.concatenate(tmp, axis=1)-104.35039287874869)/39.3184442790886
+        return np.concatenate(tmp, axis=1)
 
 def getLabelFromFile(file_list):
     return [i.split('/')[-1].split('_')[0] for i in file_list]
