@@ -28,7 +28,7 @@ class LipreadingDataset(Dataset):
         #temporalvolume = bbc(data[0] if self.landmarkloss or self.seperate else data, self.aug)
         #temporalvolume = data[0][:, :, 4:116, 4:116] if self.landmark_seperate else data[:, :, 4:116, 4:116]
         if self.landmark_seperate:
-            return bbc(data[0] if self.landmark_seperate else data, self.aug), self.labelToInt[label], bbc(data[1] if self.landmark_seperate else data, self.aug)
+            return bbc(data[0], self.aug, 'image'), self.labelToInt[label], bbc(data[1], self.aug, 'lmk')
         else:
             return bbc(data, self.aug), self.labelToInt[label]
 
@@ -102,7 +102,7 @@ def labelToDict(label_list):
         list(range(len(label_list)))
     ))
 
-def make_gaussian(size, sigma=10, center=None, d_type=np.int32):
+def make_gaussian(size, sigma=30, center=None, d_type=np.int32):
     """ Make a square gaussian kernel.
     size: is the dimensions of the output gaussian
     sigma: is full-width-half-maximum, which

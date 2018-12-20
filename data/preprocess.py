@@ -4,7 +4,7 @@ import torch
 from .statefultransforms import StatefulRandomCrop, StatefulRandomHorizontalFlip
 import numpy as np
 
-def bbc(vidframes, augmentation=True):
+def bbc(vidframes, augmentation=True, type='image'):
     """Preprocesses the specified list of frames by center cropping.
     This will only work correctly on videos that are already centered on the
     mouth region, such as LRITW.
@@ -35,7 +35,9 @@ def bbc(vidframes, augmentation=True):
             transforms.ToPILImage(),
             croptransform,
             transforms.ToTensor(),
-            transforms.Normalize([0.40921722697548507,],[0.15418997756505334,]),
+            transforms.Normalize(
+                [0.40921722697548507 if type == 'image' else 0.15735664013013212,],
+            [0.15418997756505334 if type == 'image' else 0.2322109507292421,]),
         ])(np.expand_dims(data[:, :, 0], axis=2))
 
         temporalvolume[index, 0, :, :] = result
