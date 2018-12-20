@@ -119,4 +119,4 @@ def make_gaussian(size, sigma=30, center=None, d_type=np.uint8):
         x0 = center[0]
         y0 = center[1]
 
-    return (np.exp(-4 * np.log(2) * ((x - x0) ** 2 + (y - y0) ** 2) / sigma ** 2)*255/20).astype(d_type)
+    return (np.exp(-4 * np.log(2) * ((x - x0) ** 2 + (y - y0) ** 2) / sigma ** 2)*12.75).astype(d_type)
