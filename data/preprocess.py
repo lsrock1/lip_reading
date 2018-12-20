@@ -53,7 +53,7 @@ class Preprocess:
                 ])(np.expand_dims(data[:, :, 1], axis=2))
 
                 temporalvolume[index, 1, :, :] = result
-    return temporalvolume.transpose(0, 1)
+        return temporalvolume.transpose(0, 1)
 
 def bbc(vidframes, augmentation=True, seperate=False):
     """Preprocesses the specified list of frames by center cropping.
