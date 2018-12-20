@@ -172,6 +172,7 @@ class ResNet(nn.Module):
                 nn.Conv3d(64, 64,
                         kernel_size=(5,1,1), stride=1, padding=(2,0,0), bias=False),
                 nn.BatchNorm3d(64),
+                nn.ReLU(),
                 TemporalFlat()
             )
             self.r2 = nn.Sequential(
@@ -179,6 +180,7 @@ class ResNet(nn.Module):
                 nn.Conv3d(128, 128,
                         kernel_size=(5,1,1), stride=1, padding=(2,0,0), bias=False),
                 nn.BatchNorm3d(128),
+                nn.ReLU(),
                 TemporalFlat()
             )
             self.r3 = nn.Sequential(
@@ -186,6 +188,7 @@ class ResNet(nn.Module):
                 nn.Conv3d(256, 256,
                         kernel_size=(5,1,1), stride=1, padding=(2,0,0), bias=False),
                 nn.BatchNorm3d(256),
+                nn.ReLU(),
                 TemporalFlat()
             )
             if attention and attention.startswith('tcbam'):

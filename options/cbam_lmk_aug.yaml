@@ -1,4 +1,4 @@
-name: attention_cbam_dropout
+name: attention_cbam_lmk_aug
 general: 
   usecudnn: true
   usecudnnbenchmark: true
@@ -10,7 +10,7 @@ input:
   batch_size: 16
   num_worker: 16
   shuffle: true
-  aug: false
+  aug: true
   landmark: true
   landmark_seperate: true
 
@@ -23,23 +23,18 @@ model:
   num_lstm: 2
   attention: cbam_lmk
   attention_dropout: 0.2
-  fpn: false
+  coord: false
+  temporal: false
 
 training:
   train: true
-  max_epoch: 15
-  start_epoch: 0
+  max_epoch: 25
   stats_frequency: 50
   data_path: /home/deepuser/lrw_result
-  learning_rate: 0.0006
+  learning_rate: 0.0005
   weight_decay: 0.0000001
-  schedule:
-  - 2
-  - 4
-  - 6
-  - 8
-  - 10
-  lr_decay: 0.5
+  schedule: plateau
+  lr_decay: 0.1
 
 validation:
   validate: true
