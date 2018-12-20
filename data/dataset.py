@@ -102,7 +102,7 @@ def labelToDict(label_list):
         list(range(len(label_list)))
     ))
 
-def make_gaussian(size, sigma=10, center=None, d_type=np.float64):
+def make_gaussian(size, sigma=10, center=None, d_type=np.int32):
     """ Make a square gaussian kernel.
     size: is the dimensions of the output gaussian
     sigma: is full-width-half-maximum, which
@@ -119,4 +119,4 @@ def make_gaussian(size, sigma=10, center=None, d_type=np.float64):
         x0 = center[0]
         y0 = center[1]
 
-    return np.exp(-4 * np.log(2) * ((x - x0) ** 2 + (y - y0) ** 2) / sigma ** 2).astype(d_type)
+    return np.exp(-4 * np.log(2) * ((x - x0) ** 2 + (y - y0) ** 2) / sigma ** 2)*255.astype(d_type)
