@@ -27,8 +27,6 @@ class Preprocess:
                     crop,
                     flip
                 ])
-        else:
-            self.croptransform = transforms.CenterCrop((112, 112))
     
     def process(self, vidframes):
         temporalvolume = torch.zeros(vidframes.shape[1], vidframes.shape[0], 112, 112)
