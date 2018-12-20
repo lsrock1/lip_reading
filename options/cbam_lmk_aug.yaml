@@ -8,7 +8,7 @@ general:
 
 input: 
   batch_size: 16
-  num_worker: 1
+  num_worker: 16
   shuffle: true
   aug: true
   landmark: true

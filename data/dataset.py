@@ -15,8 +15,8 @@ class LipreadingDataset(Dataset):
         self.label_list = getLabelFromFile(self.file_list)
         self.file_list = LandVideo(Video(self.file_list), data_type, landmark, landmark_seperate)
         self.labelToInt = labelToDict(self.label_list)
-        self.aug = aug
         self.landmark_seperate = landmark_seperate
+        self.preprocess = Preprocess(aug)
 
     def __len__(self):
         return len(self.file_list)
@@ -25,12 +25,13 @@ class LipreadingDataset(Dataset):
         #load video into a tensor
         data = self.file_list[idx]
         label = self.label_list[idx]
+        self.preprocess.reset()
         #temporalvolume = bbc(data[0] if self.landmarkloss or self.seperate else data, self.aug)
         #temporalvolume = data[0][:, :, 4:116, 4:116] if self.landmark_seperate else data[:, :, 4:116, 4:116]
         if self.landmark_seperate:
-            return bbc(data[0], self.aug, 'image'), self.labelToInt[label], bbc(data[1], self.aug, 'lmk')
+            return self.preprocess.process(data[0]), self.labelToInt[label], self.preprocess.process(data[1])
         else:
-            return bbc(data, self.aug), self.labelToInt[label]
+            return self.preprocess.process(data), self.labelToInt[label]
 
 
 class LandVideo:
