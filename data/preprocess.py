@@ -35,24 +35,24 @@ class Preprocess:
         vidframes = np.transpose(vidframes, (1, 2, 3, 0))
         
         for index, data in enumerate(vidframes):
-        result = transforms.Compose([
-            transforms.ToPILImage(),
-            self.croptransform,
-            transforms.ToTensor(),
-            transforms.Normalize(
-                [0.40921722697548507,],[0.15418997756505334,]),
-        ])(np.expand_dims(data[:, :, 0], axis=2))
-
-        temporalvolume[index, 0, :, :] = result
-        if data.shape[2] == 2:
             result = transforms.Compose([
                 transforms.ToPILImage(),
                 self.croptransform,
                 transforms.ToTensor(),
-                transforms.Normalize([0.15735664013013212,],[0.2322109507292421,]),
-            ])(np.expand_dims(data[:, :, 1], axis=2))
+                transforms.Normalize(
+                    [0.40921722697548507,],[0.15418997756505334,]),
+            ])(np.expand_dims(data[:, :, 0], axis=2))
 
-            temporalvolume[index, 1, :, :] = result
+            temporalvolume[index, 0, :, :] = result
+            if data.shape[2] == 2:
+                result = transforms.Compose([
+                    transforms.ToPILImage(),
+                    self.croptransform,
+                    transforms.ToTensor(),
+                    transforms.Normalize([0.15735664013013212,],[0.2322109507292421,]),
+                ])(np.expand_dims(data[:, :, 1], axis=2))
+
+                temporalvolume[index, 1, :, :] = result
     return temporalvolume.transpose(0, 1)
 
 def bbc(vidframes, augmentation=True, seperate=False):
