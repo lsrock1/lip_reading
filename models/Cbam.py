@@ -24,7 +24,7 @@ class Flatten(nn.Module):
         return x.view(x.size(0), -1)
 
 class ChannelGate(nn.Module):
-    def __init__(self, gate_channels, reduction_ratio=16, pool_types=['avg', 'max'], dropout=0.2):
+    def __init__(self, gate_channels, reduction_ratio=16, pool_types=['avg', 'max'], landmark=False):
         super(ChannelGate, self).__init__()
         self.gate_channels = gate_channels
         self.mlp = nn.Sequential(
@@ -34,34 +34,44 @@ class ChannelGate(nn.Module):
             nn.Linear(gate_channels // reduction_ratio, gate_channels)
             )
         self.pool_types = pool_types
-        self.dropout = nn.Dropout2d(dropout) if dropout > 0. else None
+        if landmark:
+            self.gate = nn.Sequential(
+                Flatten(),
+                nn.Linear(gate_channels, gate_channels // reduction_ratio),
+                nn.ReLU(),
+                nn.Linear(gate_channels // reduction_ratio, gate_channels)
+            )
+    
     def forward(self, x, landmark):
         if isinstance(landmark, bool):
             landmark = x
+
         channel_att_sum = None
+        channel_origin_sum = None
         for pool_type in self.pool_types:
             if pool_type=='avg':
                 avg_pool = F.avg_pool2d(landmark, (landmark.size(2), landmark.size(3)))
                 channel_att_raw = self.mlp(avg_pool)
+                if self.gate:
+                    avg_pool = F.avg_pool2d(x, (landmark.size(2), landmark.size(3)))
+                    channel_origin_raw = self.gate(avg_pool)
             elif pool_type=='max':
                 max_pool = F.max_pool2d(landmark, (landmark.size(2), landmark.size(3)))
                 channel_att_raw = self.mlp(max_pool)
-            elif pool_type=='lp':
-                lp_pool = F.lp_pool2d(landmark, 2, (landmark.size(2), landmark.size(3)))
-                channel_att_raw = self.mlp(lp_pool)
-            elif pool_type=='lse':
-                # LSE pool only
-                lse_pool = logsumexp_2d(x)
-                channel_att_raw = self.mlp( lse_pool )
+                if self.gate:
+                    max_pool = F.max_pool2d(x, (landmark.size(2), landmark.size(3)))
+                    channel_origin_raw = self.gate(max_pool)
 
             if channel_att_sum is None:
                 channel_att_sum = channel_att_raw
+                channel_origin_sum = channel_origin_raw
             else:
-                channel_att_sum = channel_att_sum + channel_att_raw
+                channel_att_sum += channel_att_raw
+                channel_origin_sum += channel_origin_raw
 
         scale = torch.sigmoid(channel_att_sum).unsqueeze(2).unsqueeze(3).expand_as(x)
-        if self.dropout:
-            scale = self.dropout(scale)
+        if self.gate:
+            scale = scale + (1-scale) * torch.sigmoid(channel_origin_sum).unsqueeze(2).unsqueeze(3).expand_as(x)
         return x * scale
 
 def logsumexp_2d(tensor):
@@ -75,12 +85,13 @@ class ChannelPool(nn.Module):
         return torch.cat((torch.max(x,1)[0].unsqueeze(1), torch.mean(x,1).unsqueeze(1)), dim=1)
 
 class SpatialGate(nn.Module):
-    def __init__(self, dropout=0.2):
+    def __init__(self, landmark=False):
         super(SpatialGate, self).__init__()
         kernel_size = 7
-        self.dropout = nn.Dropout2d(dropout) if dropout > 0. else None
         self.compress = ChannelPool()
         self.spatial = BasicConv(2, 1, kernel_size, stride=1, padding=(kernel_size-1) // 2, relu=False)
+        if landmark:
+            self.gate = BasicConv(2, 1, kernel_size, stride=1, padding=(kernel_size-1) // 2, relu=False)
     
     def forward(self, x, landmark):
         if isinstance(landmark, bool):
@@ -88,14 +99,13 @@ class SpatialGate(nn.Module):
         x_compress = self.compress(landmark)
         x_out = self.spatial(x_compress)
         scale = torch.sigmoid(x_out) # broadcasting
-        if self.dropout:
-            scale = self.dropout(scale)
+        if self.gate:
+            scale = scale + (1-scale) * torch.sigmoid(self.gate(x))
         return x * scale
 
 class TemporalGate(nn.Module):
-    def __init__(self, gate_temporal=29, linear_size=5, pool_types=['avg', 'max'], dropout=0.2):
+    def __init__(self, gate_temporal=29, linear_size=5, pool_types=['avg', 'max']):
         super(TemporalGate, self).__init__()
-        self.dropout = nn.Dropout2d(0.2)
         self.gate_channels = gate_temporal
         self.mlp = nn.Sequential(
             Flatten(),
@@ -130,9 +140,9 @@ class TemporalGate(nn.Module):
 
 
 class CBAM(nn.Module):
-    def __init__(self, channel, in_channel, stride, kernel_size=3, padding=1, reduction_ratio=16, pool_types=['avg', 'max'], no_channel=False, no_spatial=False, no_temporal=True, dropout=0.2):
+    def __init__(self, channel, in_channel, stride, kernel_size=3, padding=1, reduction_ratio=16, pool_types=['avg', 'max'], no_channel=False, no_spatial=False, no_temporal=True, landmark=False):
         super(CBAM, self).__init__()
-        self.ChannelGate = ChannelGate(channel, reduction_ratio, pool_types, dropout=dropout if no_spatial and no_temporal else 0.)
+        self.ChannelGate = ChannelGate(channel, reduction_ratio, pool_types)
         self.no_spatial = no_spatial
         self.no_temporal = no_temporal
         self.no_channel = no_channel
@@ -141,9 +151,9 @@ class CBAM(nn.Module):
             nn.BatchNorm2d(channel),
         )
         if not no_spatial:
-            self.SpatialGate = SpatialGate(dropout=dropout if not no_temporal else 0.)
+            self.SpatialGate = SpatialGate(landmark=landmark)
         if not no_temporal:
-            self.temporalGate = TemporalGate(dropout=dropout)
+            self.temporalGate = TemporalGate(landmark=landmark)
             
     def forward(self, x, landmark=False):
         if not isinstance(landmark, bool):

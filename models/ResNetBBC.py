@@ -62,7 +62,7 @@ def conv3x3(in_planes, out_planes, stride=1):
 class BasicBlock(nn.Module):
     expansion = 1
 
-    def __init__(self, inplanes, planes, stride=1, downsample=None, attention=False, dropout=0.2):
+    def __init__(self, inplanes, planes, stride=1, downsample=None, attention=False):
         super(BasicBlock, self).__init__()
         self.conv1 = conv3x3(inplanes, planes, stride)
         self.bn1 = nn.BatchNorm2d(planes)
@@ -72,9 +72,9 @@ class BasicBlock(nn.Module):
         self.downsample = downsample
         self.stride = stride
         if (attention and attention.startswith('cbam')):
-            self.attn = CBAM(planes, inplanes, stride, dropout=dropout)
+            self.attn = CBAM(planes, inplanes, stride, landmark=attention.endswith('lmk'))
         elif attention and attention.startswith('se'):
-            self.attn = CBAM(planes, inplanes, stride, no_spatial=True, dropout=dropout)
+            self.attn = CBAM(planes, inplanes, stride, no_spatial=True, landmark=attention.endswith('lmk'))
         # elif attention and attention.startswith('tcbam'):
         #     self.attn = CBAM(planes, inplanes, stride, no_temporal=False, dropout=dropout)
         else:
@@ -104,7 +104,7 @@ class BasicBlock(nn.Module):
 class Bottleneck(nn.Module):
     expansion = 4
 
-    def __init__(self, inplanes, planes, stride=1, downsample=None, attention=False, dropout=0.2):
+    def __init__(self, inplanes, planes, stride=1, downsample=None, attention=False):
         super(Bottleneck, self).__init__()
         self.conv1 = nn.Conv2d(inplanes, planes, kernel_size=1, bias=False)
         self.bn1 = nn.BatchNorm2d(planes)
@@ -117,9 +117,9 @@ class Bottleneck(nn.Module):
         self.downsample = downsample
         self.stride = stride
         if attention and attention.startswith('cbam'):
-            self.attn = CBAM(planes*4, inplanes, stride, dropout=dropout)
+            self.attn = CBAM(planes*4, inplanes, stride)
         elif attention and attention.startswith('se'):
-            self.attn = CBAM(planes*4, inplanes, stride, no_spatial=True, dropout=dropout)
+            self.attn = CBAM(planes*4, inplanes, stride, no_spatial=True)
         # elif attention and attention.startswith('tcbam'):
         #     self.attn = CBAM(planes*4, inplanes, stride, no_temporal=False, dropout=dropout)
         else:
@@ -152,11 +152,10 @@ class Bottleneck(nn.Module):
 
 class ResNet(nn.Module):
 
-    def __init__(self, block, layers, num_classes=1000, attention=False, dropout=0.2, temporal=False):
+    def __init__(self, block, layers, num_classes=1000, attention=False, temporal=False):
         self.inplanes = 64
         super(ResNet, self).__init__()
         self.attn = attention
-        self.dropout = dropout
         self.layer1 = self._make_layer(block, 64, layers[0])
         self.layer2 = self._make_layer(block, 128, layers[1], stride=2)
         self.layer3 = self._make_layer(block, 256, layers[2], stride=2)
@@ -191,14 +190,9 @@ class ResNet(nn.Module):
                 nn.ReLU(),
                 TemporalFlat()
             )
-            if attention and attention.startswith('tcbam'):
-                self.a1 = CBAM(64, 64, 1, no_channel=True, no_spatial=True, no_temporal=False, dropout=dropout)
-                self.a2 = CBAM(128, 128, 2, no_channel=True, no_spatial=True, no_temporal=False, dropout=dropout)
-                self.a3 = CBAM(256, 256, 2, no_channel=True, no_spatial=True, no_temporal=False, dropout=dropout)
-            else:
-                self.a1, self.a2, self.a3 = None, None, None
+
         else:
-            self.r1, self.r2, self.r3, self.a1, self.a2, self.a3 = None, None, None, None, None, None
+            self.r1, self.r2, self.r3 = None, None, None
 
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
@@ -218,10 +212,10 @@ class ResNet(nn.Module):
             )
 
         layers = []
-        layers.append(block(self.inplanes, planes, stride, downsample, attention=self.attn, dropout=self.dropout))
+        layers.append(block(self.inplanes, planes, stride, downsample, attention=self.attn))
         self.inplanes = planes * block.expansion
         for i in range(1, blocks):
-            layers.append(block(self.inplanes, planes, attention=self.attn, dropout=self.dropout))
+            layers.append(block(self.inplanes, planes, attention=self.attn))
 
         return AS(*layers)
 
@@ -230,19 +224,16 @@ class ResNet(nn.Module):
 
         if self.r1:
             x = self.r1(x)
-        if self.a1:
-            x, _ = self.a1(x)
+
         x, attn = self.layer2(x, attn if self.attn and self.attn.endswith('lmk') else False)
         if self.r2:
             x = self.r2(x)
-        if self.a2:
-            x, _ = self.a2(x)
+
         x, attn = self.layer3(x, attn if self.attn and self.attn.endswith('lmk') else False)
         
         if self.r3:
             x = self.r3(x)
-        if self.a3:
-            x, _ = self.a3(x)
+
         x, _ = self.layer4(x, attn if self.attn and self.attn.endswith('lmk') else False)
         del _
         x = self.avgpool(x)
@@ -316,7 +307,7 @@ class ResNetBBC(nn.Module):
     def __init__(self, options):
         super(ResNetBBC, self).__init__()
         self.batch_size = options["input"]["batch_size"]
-        self.resnetModel = resnet34(False, num_classes=options["model"]["input_dim"], attention=options['model']['attention'], dropout=options['model']['attention_dropout'], temporal=options['model']['temporal'])
+        self.resnetModel = resnet34(False, num_classes=options["model"]["input_dim"], attention=options['model']['attention'], temporal=options['model']['temporal'])
         self.input_dim = options['model']['input_dim']
         
     def forward(self, x, landmark=False):
