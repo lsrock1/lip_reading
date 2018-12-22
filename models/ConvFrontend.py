@@ -19,11 +19,11 @@ class ConvFrontend(nn.Module):
             dim += 2
             self.addCoord = AddCoords()
         if self.attention and self.attention.startswith('cbam'):
-            self.attn = CBAM(64, dim, 4, 8, 2)
+            self.attn = CBAM(64, dim, 4, 8, 2, landmark=self.attention.endswith('lmk'))
         elif self.attention and self.attention.startswith('se'):
-            self.attn = CBAM(64, dim, 4, 8, 2, no_spatial=True)
+            self.attn = CBAM(64, dim, 4, 8, 2, no_spatial=True, landmark=self.attention.endswith('lmk'))
         elif self.attention and self.attention.startswith('tcbam'):
-            self.attn = CBAM(64, dim, 4, 8, 2, no_channel=True, no_spatial=True, no_temporal=False)
+            self.attn = CBAM(64, dim, 4, 8, 2, no_channel=True, no_spatial=True, no_temporal=False, landmark=self.attention.endswith('lmk'))
         else:
             self.attn = None
         self.conv = nn.Conv3d(dim, 64, (5,7,7), stride=(1,2,2), padding=(2,3,3), bias=False)
