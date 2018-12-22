@@ -117,9 +117,9 @@ class Bottleneck(nn.Module):
         self.downsample = downsample
         self.stride = stride
         if attention and attention.startswith('cbam'):
-            self.attn = CBAM(planes*4, inplanes, stride)
+            self.attn = CBAM(planes*4, inplanes, stride, landmark=attention.endswith('lmk'))
         elif attention and attention.startswith('se'):
-            self.attn = CBAM(planes*4, inplanes, stride, no_spatial=True)
+            self.attn = CBAM(planes*4, inplanes, stride, no_spatial=True, landmark=attention.endswith('lmk'))
         # elif attention and attention.startswith('tcbam'):
         #     self.attn = CBAM(planes*4, inplanes, stride, no_temporal=False, dropout=dropout)
         else:
