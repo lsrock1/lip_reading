@@ -41,6 +41,8 @@ class ChannelGate(nn.Module):
                 nn.ReLU(),
                 nn.Linear(gate_channels // reduction_ratio, gate_channels)
             )
+        else:
+            self.gate = None
     
     def forward(self, x, landmark):
         if isinstance(landmark, bool):
@@ -92,7 +94,9 @@ class SpatialGate(nn.Module):
         self.spatial = BasicConv(2, 1, kernel_size, stride=1, padding=(kernel_size-1) // 2, relu=False)
         if landmark:
             self.gate = BasicConv(2, 1, kernel_size, stride=1, padding=(kernel_size-1) // 2, relu=False)
-    
+        else:
+            self.gate = None
+
     def forward(self, x, landmark):
         if isinstance(landmark, bool):
             landmark = x
@@ -142,7 +146,7 @@ class TemporalGate(nn.Module):
 class CBAM(nn.Module):
     def __init__(self, channel, in_channel, stride, kernel_size=3, padding=1, reduction_ratio=16, pool_types=['avg', 'max'], no_channel=False, no_spatial=False, no_temporal=True, landmark=False):
         super(CBAM, self).__init__()
-        self.ChannelGate = ChannelGate(channel, reduction_ratio, pool_types)
+        self.ChannelGate = ChannelGate(channel, reduction_ratio, pool_types, landmark=landmark)
         self.no_spatial = no_spatial
         self.no_temporal = no_temporal
         self.no_channel = no_channel
