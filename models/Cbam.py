@@ -104,7 +104,7 @@ class SpatialGate(nn.Module):
         x_out = self.spatial(x_compress)
         scale = torch.sigmoid(x_out) # broadcasting
         if self.gate:
-            scale = scale + (1-scale) * torch.sigmoid(self.gate(x))
+            scale = scale + (1-scale) * torch.sigmoid(self.gate(self.compress(x)))
         return x * scale
 
 class TemporalGate(nn.Module):
