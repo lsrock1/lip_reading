@@ -1,4 +1,4 @@
-name: baseline_temporal_coord_landmark
+name: temporal
 general: 
   usecudnn: true
   usecudnnbenchmark: true
@@ -10,8 +10,8 @@ input:
   batch_size: 16
   num_worker: 16
   shuffle: true
-  aug: false
-  landmark: true
+  aug: true
+  landmark: false
   landmark_seperate: false
 
 model:
@@ -23,15 +23,15 @@ model:
   num_lstm: 2
   attention: false
   attention_dropout: 0.5
-  coord: true
+  coord: false
   temporal: true
 
 training:
   train: true
-  max_epoch: 20
+  max_epoch: 30
   stats_frequency: 50
   data_path: /home/deepuser/lrw_result
-  learning_rate: 0.0001
+  learning_rate: 0.0005
   weight_decay: 0.0000001
   schedule: plateau
   lr_decay: 0.1
